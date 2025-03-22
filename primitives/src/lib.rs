@@ -2,8 +2,6 @@ pub mod table;
 
 pub mod channel;
 
-pub mod proof;
-
 pub mod m31;
 pub mod m31_limbs;
 

@@ -28,6 +28,8 @@ pub mod basic;
 
 pub mod compiler;
 
+pub mod ldm;
+
 #[allow(missing_docs)]
 pub mod treepp {
     pub use bitcoin_script::{define_pushable, script};

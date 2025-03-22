@@ -2,6 +2,7 @@ use crate::cm31::CM31Bar;
 use crate::m31::M31Bar;
 use crate::qm31::QM31Bar;
 use anyhow::Result;
+use recursive_stwo_bitcoin_dsl::basic::str::StrBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 
 pub mod sha256;
@@ -20,6 +21,7 @@ pub trait ChannelBar: Sized {
     fn mix_root(&mut self, hash: &Self::HashType);
 
     fn mix_felts(&mut self, v: &[QM31Bar]);
+    fn mix_str(&mut self, value: &StrBar);
 
     fn draw_felt(&mut self) -> QM31Bar {
         let m31 = self.draw_m31(4);
@@ -33,6 +35,31 @@ pub trait ChannelBar: Sized {
                 real: m31[2].clone(),
             },
         }
+    }
+
+    fn draw_felts(&mut self) -> [QM31Bar; 2] {
+        let m31 = self.draw_m31(8);
+        let a = QM31Bar {
+            first: CM31Bar {
+                imag: m31[1].clone(),
+                real: m31[0].clone(),
+            },
+            second: CM31Bar {
+                imag: m31[3].clone(),
+                real: m31[2].clone(),
+            },
+        };
+        let b = QM31Bar {
+            first: CM31Bar {
+                imag: m31[5].clone(),
+                real: m31[4].clone(),
+            },
+            second: CM31Bar {
+                imag: m31[7].clone(),
+                real: m31[6].clone(),
+            },
+        };
+        [a, b]
     }
 
     fn draw_numbers(&mut self, n: usize, logn: usize) -> Vec<M31Bar> {

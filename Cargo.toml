@@ -18,6 +18,7 @@ num-traits = "0.2.19"
 stwo-prover = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle-poseidon-plonk/", branch = "cp-poseidon-flattened", features = ["parallel"] }
 rust-bitcoin-m31 = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-m31" }
 circle-plonk-dsl-hints = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
+itertools = "0.14.0"
 
 [profile.release]
 opt-level = 3

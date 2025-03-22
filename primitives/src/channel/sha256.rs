@@ -96,12 +96,12 @@ impl ChannelBar for Sha256ChannelBar {
         let mut sha256 = Sha256::new();
         Update::update(&mut sha256, self.digest.value.as_ref());
         Update::update(&mut sha256, hash.value.as_ref());
-        let drawn_digest = sha256.finalize().to_vec();
+        let new_digest = sha256.finalize().to_vec();
 
         let cs = self.digest.cs();
         cs.insert_script(mix_root_gadget, vec![self.digest.variable, hash.variable])
             .unwrap();
-        self.update_digest(&Sha256HashBar::new_function_output(&cs, drawn_digest.into()).unwrap());
+        self.update_digest(&Sha256HashBar::new_function_output(&cs, new_digest.into()).unwrap());
     }
 
     fn mix_felts(&mut self, felts: &[QM31Bar]) {
@@ -127,6 +127,25 @@ impl ChannelBar for Sha256ChannelBar {
                 &Sha256HashBar::new_function_output(&cs, drawn_digest.into()).unwrap(),
             );
         }
+    }
+
+    fn mix_str(&mut self, value: &StrBar) {
+        assert_eq!(value.value.len(), 32);
+        let mut sha256 = Sha256::new();
+        Digest::update(&mut sha256, &value.value);
+        Digest::update(&mut sha256, self.digest.value);
+        let new_digest = sha256.finalize().to_vec();
+
+        let cs = self.digest.cs();
+        cs.insert_script(mix_str_gadget, vec![value.variable, self.digest.variable])
+            .unwrap();
+        self.update_digest(&Sha256HashBar::new_function_output(&cs, new_digest.into()).unwrap());
+    }
+}
+
+fn mix_str_gadget() -> Script {
+    script! {
+        OP_CAT hash
     }
 }
 

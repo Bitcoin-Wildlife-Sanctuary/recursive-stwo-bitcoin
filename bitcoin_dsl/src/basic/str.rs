@@ -7,7 +7,7 @@ use anyhow::Result;
 use bitcoin::opcodes::all::OP_CAT;
 use std::ops::Add;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct StrBar {
     pub variable: usize,
     pub value: Vec<u8>,
