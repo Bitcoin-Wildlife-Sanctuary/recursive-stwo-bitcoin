@@ -1,0 +1,11 @@
+[package]
+name = "recursive-stwo-delegation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+recursive-stwo-bitcoin-dsl = { path = "../bitcoin_dsl" }
+recursive-stwo-primitives = { path = "../primitives" }
+anyhow.workspace = true
+circle-plonk-dsl-hints.workspace = true
+stwo-prover.workspace = true

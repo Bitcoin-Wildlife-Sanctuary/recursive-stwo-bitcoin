@@ -1,0 +1,16 @@
+[package]
+name = "recursive-stwo-primitives"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+recursive-stwo-bitcoin-dsl = { path = "../bitcoin_dsl" }
+anyhow.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true
+bitcoin.workspace = true
+bitcoin-scriptexec.workspace = true
+stwo-prover.workspace = true
+rust-bitcoin-m31.workspace = true
+num-traits.workspace = true
+sha2.workspace = true
