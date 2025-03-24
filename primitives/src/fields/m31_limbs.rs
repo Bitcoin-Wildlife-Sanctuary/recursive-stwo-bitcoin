@@ -1,9 +1,9 @@
-use super::m31::M31Bar;
-use super::table::m31::{M31Limbs, M31LimbsGadget, M31Mult, M31MultGadget};
-use super::table::utils::{
+use crate::fields::m31::M31Bar;
+use crate::fields::table::m31::{M31Limbs, M31LimbsGadget, M31Mult, M31MultGadget};
+use crate::fields::table::utils::{
     check_limb_format, convert_m31_from_limbs, convert_m31_to_limbs, OP_256MUL,
 };
-use crate::table::TableBar;
+use crate::fields::table::TableBar;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
 use recursive_stwo_bitcoin_dsl::bitcoin_system::{BitcoinSystemRef, Element};
@@ -180,11 +180,11 @@ fn m31_limbs_mul_gadget(stack: &mut Stack, options: &Options) -> Result<Script> 
 
 #[cfg(test)]
 mod test {
-    use crate::m31::M31Bar;
-    use crate::m31_limbs::M31LimbsBar;
-    use crate::table::m31::M31Limbs;
-    use crate::table::utils::convert_m31_to_limbs;
-    use crate::table::TableBar;
+    use crate::fields::m31::M31Bar;
+    use crate::fields::m31_limbs::M31LimbsBar;
+    use crate::fields::table::m31::M31Limbs;
+    use crate::fields::table::utils::convert_m31_to_limbs;
+    use crate::fields::table::TableBar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::{AllocBar, Bar};

@@ -1,4 +1,4 @@
-use crate::m31::M31Bar;
+use crate::fields::m31::M31Bar;
 use bitcoin::script::read_scriptint;
 use num_traits::Zero;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, Bar};

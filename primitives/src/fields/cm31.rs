@@ -1,7 +1,8 @@
-use super::cm31_limbs::CM31LimbsBar;
-use super::m31::M31Bar;
-use super::m31_limbs::M31LimbsBar;
-use crate::table::TableBar;
+use crate::fields::cm31_limbs::CM31LimbsBar;
+use crate::fields::m31::M31Bar;
+use crate::fields::m31_limbs::M31LimbsBar;
+use crate::fields::qm31::QM31Bar;
+use crate::fields::table::TableBar;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar, CopyBar};
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
@@ -154,6 +155,13 @@ impl Neg for &CM31Bar {
 }
 
 impl CM31Bar {
+    pub fn from_m31(a: &M31Bar, b: &M31Bar) -> CM31Bar {
+        CM31Bar {
+            imag: b.clone(),
+            real: a.clone(),
+        }
+    }
+
     pub fn is_one(&self) {
         assert_eq!(self.value().unwrap(), CM31::from_u32_unchecked(1, 0));
         self.real.is_one();
@@ -198,8 +206,8 @@ impl CM31Bar {
 
 #[cfg(test)]
 mod test {
-    use crate::cm31::CM31Bar;
-    use crate::table::TableBar;
+    use crate::fields::cm31::CM31Bar;
+    use crate::fields::table::TableBar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::AllocBar;

@@ -51,7 +51,7 @@ mod test {
 
         let mut ldm = LDM::new();
 
-        let cs = part1::generate_cs(&fiat_shamir_hints, &proof, &mut ldm).unwrap();
+        let cs = part1::generate_cs(&fiat_shamir_hints, &proof, config, &mut ldm).unwrap();
         test_program(
             cs,
             script! {

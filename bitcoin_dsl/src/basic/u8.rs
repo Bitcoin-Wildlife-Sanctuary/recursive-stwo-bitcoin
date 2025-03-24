@@ -36,7 +36,7 @@ impl AllocBar for U8Bar {
         cs: &BitcoinSystemRef,
         data: Self::Value,
         mode: AllocationMode,
-    ) -> anyhow::Result<Self> {
+    ) -> Result<Self> {
         Ok(Self {
             variable: cs.alloc(Element::Num(data as i32), mode)?,
             value: data,

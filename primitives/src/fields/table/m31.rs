@@ -33,8 +33,8 @@
 // - t += c_1
 // - r = t
 
-use crate::table::lookup::Lookup8BitGadget;
-use crate::table::utils::{convert_m31_to_limbs, OP_256MUL};
+use crate::fields::table::lookup::Lookup8BitGadget;
+use crate::fields::table::utils::{convert_m31_to_limbs, OP_256MUL};
 use anyhow::{Error, Result};
 use recursive_stwo_bitcoin_dsl::treepp::*;
 use stwo_prover::core::fields::m31::M31;
@@ -418,9 +418,9 @@ impl M31LimbsGadget {
 
 #[cfg(test)]
 mod test {
-    use crate::table::get_table;
-    use crate::table::m31::{M31Limbs, M31Mult, M31MultGadget};
-    use crate::table::utils::convert_m31_to_limbs;
+    use crate::fields::table::get_table;
+    use crate::fields::table::m31::{M31Limbs, M31Mult, M31MultGadget};
+    use crate::fields::table::utils::convert_m31_to_limbs;
     use bitcoin_scriptexec::execute_script;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;

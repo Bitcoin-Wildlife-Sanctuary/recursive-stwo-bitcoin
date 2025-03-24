@@ -1,7 +1,7 @@
 use crate::channel::utils::reconstruct_for_channel_draw;
 use crate::channel::ChannelBar;
-use crate::m31::M31Bar;
-use crate::qm31::QM31Bar;
+use crate::fields::m31::M31Bar;
+use crate::fields::qm31::QM31Bar;
 use crate::utils::{hash, hash_qm31_gadget};
 use anyhow::Result;
 use bitcoin::script::write_scriptint;

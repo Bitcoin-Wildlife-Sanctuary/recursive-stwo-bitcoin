@@ -1,21 +1,16 @@
-pub mod table;
-
 pub mod channel;
 
-pub mod m31;
-pub mod m31_limbs;
+pub mod fields;
 
-pub mod cm31;
-pub mod cm31_limbs;
+pub mod bits;
 
-pub mod qm31;
-pub mod qm31_limbs;
+pub mod pow;
 
 pub mod utils;
 
 #[cfg(test)]
 mod test {
-    use crate::m31::M31Bar;
+    use crate::fields::m31::M31Bar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::AllocBar;

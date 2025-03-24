@@ -1,4 +1,8 @@
+use anyhow::Result;
+use bitcoin::opcodes::Ordinary::{OP_GREATERTHANOREQUAL, OP_LESSTHANOREQUAL, OP_VERIFY};
 use bitcoin_scriptexec::{profiler_end, profiler_start};
+use recursive_stwo_bitcoin_dsl::options::Options;
+use recursive_stwo_bitcoin_dsl::stack::Stack;
 use recursive_stwo_bitcoin_dsl::treepp::*;
 use sha2::{Digest, Sha256};
 

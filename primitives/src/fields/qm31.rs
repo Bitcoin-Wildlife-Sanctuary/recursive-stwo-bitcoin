@@ -1,9 +1,9 @@
-use crate::cm31::CM31Bar;
-use crate::cm31_limbs::CM31LimbsBar;
-use crate::m31::M31Bar;
-use crate::m31_limbs::M31LimbsBar;
-use crate::qm31_limbs::QM31LimbsBar;
-use crate::table::TableBar;
+use crate::fields::cm31::CM31Bar;
+use crate::fields::cm31_limbs::CM31LimbsBar;
+use crate::fields::m31::M31Bar;
+use crate::fields::m31_limbs::M31LimbsBar;
+use crate::fields::qm31_limbs::QM31LimbsBar;
+use crate::fields::table::TableBar;
 use anyhow::Result;
 use num_traits::One;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar, CopyBar};
@@ -234,6 +234,13 @@ impl QM31Bar {
         self.second.is_zero();
     }
 
+    pub fn from_m31(a: &M31Bar, b: &M31Bar, c: &M31Bar, d: &M31Bar) -> QM31Bar {
+        QM31Bar {
+            first: CM31Bar::from_m31(a, b),
+            second: CM31Bar::from_m31(c, d),
+        }
+    }
+
     pub fn add1(&self) -> QM31Bar {
         let mut res = self.value().unwrap();
         res.0 .0 += M31::one();
@@ -351,8 +358,8 @@ fn qm31_conditional_swap_gadget() -> Script {
 
 #[cfg(test)]
 mod test {
-    use crate::qm31::QM31Bar;
-    use crate::table::TableBar;
+    use crate::fields::qm31::QM31Bar;
+    use crate::fields::table::TableBar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::AllocBar;

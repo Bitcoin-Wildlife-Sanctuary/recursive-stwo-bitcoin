@@ -1,15 +1,21 @@
 use anyhow::Result;
 use circle_plonk_dsl_hints::FiatShamirHints;
 use itertools::Itertools;
+use num_traits::Zero;
 use recursive_stwo_bitcoin_dsl::bar::AllocBar;
 use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
 use recursive_stwo_bitcoin_dsl::basic::str::StrBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use recursive_stwo_bitcoin_dsl::ldm::LDM;
+use recursive_stwo_primitives::bits::enforce_bit_range;
 use recursive_stwo_primitives::channel::sha256::Sha256ChannelBar;
 use recursive_stwo_primitives::channel::ChannelBar;
-use recursive_stwo_primitives::qm31::QM31Bar;
+use recursive_stwo_primitives::fields::m31::M31Bar;
+use recursive_stwo_primitives::fields::qm31::QM31Bar;
+use recursive_stwo_primitives::pow::verify_pow;
+use stwo_prover::core::fields::m31::M31;
 use stwo_prover::core::fields::qm31::QM31;
+use stwo_prover::core::pcs::PcsConfig;
 use stwo_prover::core::vcs::poseidon31_merkle::Poseidon31MerkleHasher;
 use stwo_prover::core::vcs::sha256_poseidon31_merkle::{
     Sha256Poseidon31MerkleChannel, Sha256Poseidon31MerkleHasher,
@@ -19,6 +25,7 @@ use stwo_prover::examples::plonk_with_poseidon::air::PlonkWithPoseidonProof;
 pub fn generate_cs(
     fiat_shamir_hints: &FiatShamirHints<Sha256Poseidon31MerkleChannel>,
     proof: &PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher>,
+    config: PcsConfig,
     ldm: &mut LDM,
 ) -> Result<BitcoinSystemRef> {
     let cs = BitcoinSystemRef::new_ref();
@@ -125,7 +132,6 @@ pub fn generate_cs(
         let commit_var = Sha256HashBar::new_hint(&cs, inner_layer.commitment)?;
         channel_var.mix_root(&commit_var);
         inner_layers_commit_vars.push(commit_var);
-
         inner_layers_folding_alphas.push(channel_var.draw_felt());
     }
 
@@ -157,6 +163,12 @@ pub fn generate_cs(
     ];
 
     channel_var.mix_felts(&coeffs_hash);
+
+    let mut d = [0u8; 32];
+    d[0..8].copy_from_slice(&proof.stark_proof.proof_of_work.to_le_bytes());
+    channel_var.mix_str(&StrBar::new_constant(&cs, d.to_vec())?);
+
+    verify_pow(&channel_var, config.pow_bits as usize)?;
 
     ldm.save()?;
     Ok(cs)

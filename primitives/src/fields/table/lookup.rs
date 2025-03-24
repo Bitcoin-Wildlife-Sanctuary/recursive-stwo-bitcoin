@@ -53,8 +53,8 @@ impl Lookup8BitGadget {
 
 #[cfg(test)]
 mod test {
-    use crate::table::get_table;
-    use crate::table::lookup::Lookup8BitGadget;
+    use crate::fields::table::get_table;
+    use crate::fields::table::lookup::Lookup8BitGadget;
     use bitcoin_scriptexec::execute_script;
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;

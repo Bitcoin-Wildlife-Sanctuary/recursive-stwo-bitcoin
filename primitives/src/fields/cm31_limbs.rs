@@ -1,7 +1,7 @@
-use super::cm31::CM31Bar;
-use super::m31_limbs::M31LimbsBar;
-use super::table::m31::{M31Limbs, M31LimbsGadget};
-use super::table::TableBar;
+use crate::fields::cm31::CM31Bar;
+use crate::fields::m31_limbs::M31LimbsBar;
+use crate::fields::table::m31::{M31Limbs, M31LimbsGadget};
+use crate::fields::table::TableBar;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, Bar};
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use std::ops::{Add, Mul};
@@ -115,9 +115,9 @@ impl Add<&CM31LimbsBar> for &CM31LimbsBar {
 
 #[cfg(test)]
 mod test {
-    use crate::cm31::CM31Bar;
-    use crate::cm31_limbs::CM31LimbsBar;
-    use crate::table::TableBar;
+    use crate::fields::cm31::CM31Bar;
+    use crate::fields::cm31_limbs::CM31LimbsBar;
+    use crate::fields::table::TableBar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::AllocBar;

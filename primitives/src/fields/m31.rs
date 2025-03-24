@@ -1,5 +1,5 @@
-use super::m31_limbs::{m31_to_limbs_gadget, M31LimbsBar};
-use crate::table::TableBar;
+use crate::fields::m31_limbs::{m31_to_limbs_gadget, M31LimbsBar};
+use crate::fields::table::TableBar;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
 use recursive_stwo_bitcoin_dsl::bitcoin_system::{BitcoinSystemRef, Element};
@@ -215,7 +215,7 @@ fn m31_trim_gadget(_: &mut Stack, options: &Options) -> Result<Script> {
 #[cfg(test)]
 mod test {
     use super::M31Bar;
-    use crate::table::TableBar;
+    use crate::fields::table::TableBar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::AllocBar;

@@ -1,6 +1,6 @@
-use crate::cm31_limbs::CM31LimbsBar;
-use crate::qm31::QM31Bar;
-use crate::table::TableBar;
+use crate::fields::cm31_limbs::CM31LimbsBar;
+use crate::fields::qm31::QM31Bar;
+use crate::fields::table::TableBar;
 use recursive_stwo_bitcoin_dsl::bar::Bar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use std::ops::Mul;
@@ -64,9 +64,9 @@ impl Mul<(&TableBar, &QM31LimbsBar)> for &QM31LimbsBar {
 
 #[cfg(test)]
 mod test {
-    use crate::qm31::QM31Bar;
-    use crate::qm31_limbs::QM31LimbsBar;
-    use crate::table::TableBar;
+    use crate::fields::qm31::QM31Bar;
+    use crate::fields::qm31_limbs::QM31LimbsBar;
+    use crate::fields::table::TableBar;
     use rand::SeedableRng;
     use rand_chacha::ChaCha20Rng;
     use recursive_stwo_bitcoin_dsl::bar::AllocBar;
