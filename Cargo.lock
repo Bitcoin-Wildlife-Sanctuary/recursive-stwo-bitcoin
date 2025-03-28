@@ -544,9 +544,9 @@ checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
 
 [[package]]
 name = "log"
-version = "0.4.26"
+version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
+checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "num-bigint"
@@ -725,6 +725,8 @@ dependencies = [
  "num-traits",
  "recursive-stwo-bitcoin-dsl",
  "recursive-stwo-primitives",
+ "serde",
+ "sha2",
  "stwo-prover",
 ]
 
@@ -735,6 +737,7 @@ dependencies = [
  "anyhow",
  "bitcoin",
  "bitcoin-scriptexec",
+ "itertools 0.14.0",
  "num-traits",
  "rand",
  "rand_chacha",
@@ -891,7 +894,7 @@ dependencies = [
 [[package]]
 name = "stwo-prover"
 version = "0.1.1"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle-poseidon-plonk/?branch=cp-poseidon-flattened#88b8b4e7f135f76d872690d3b52c7141bbae34fe"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle-poseidon-plonk/?branch=cp-poseidon-flattened#73d9970a24012a194f90fc74adeac63d1fee00e3"
 dependencies = [
  "bincode",
  "blake2",

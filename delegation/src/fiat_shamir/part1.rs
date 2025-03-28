@@ -170,6 +170,13 @@ pub fn generate_cs(
 
     verify_pow(&channel_var, config.pow_bits as usize)?;
 
+    let queries = channel_var.draw_numbers(
+        8,
+        fiat_shamir_hints.max_first_layer_column_log_size as usize,
+    );
+    let queries_felt_1 = QM31Bar::from_m31(&queries[0], &queries[1], &queries[2], &queries[3]);
+    let queries_felt_2 = QM31Bar::from_m31(&queries[4], &queries[5], &queries[6], &queries[7]);
+
     ldm.save()?;
     Ok(cs)
 }
