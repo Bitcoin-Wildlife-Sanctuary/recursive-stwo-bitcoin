@@ -123,10 +123,20 @@ impl BoolBar {
             .insert_script(bool_var_verify, vec![self.variable])
             .unwrap()
     }
+
+    pub fn drop(&self) {
+        self.cs.insert_script(drop_gadget, [self.variable]).unwrap();
+    }
 }
 
 fn bool_var_verify() -> Script {
     script! {
         OP_VERIFY
+    }
+}
+
+fn drop_gadget() -> Script {
+    script! {
+        OP_DROP
     }
 }

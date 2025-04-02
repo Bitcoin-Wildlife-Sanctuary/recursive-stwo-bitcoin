@@ -1,4 +1,3 @@
-use crate::fields::cm31::CM31Bar;
 use crate::fields::m31::M31Bar;
 use crate::fields::qm31::QM31Bar;
 use anyhow::Result;

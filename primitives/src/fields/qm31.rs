@@ -241,6 +241,15 @@ impl QM31Bar {
         }
     }
 
+    pub fn to_m31_array(&self) -> [M31Bar; 4] {
+        [
+            self.first.real.clone(),
+            self.first.imag.clone(),
+            self.second.real.clone(),
+            self.second.imag.clone(),
+        ]
+    }
+
     pub fn add1(&self) -> QM31Bar {
         let mut res = self.value().unwrap();
         res.0 .0 += M31::one();

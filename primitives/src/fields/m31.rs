@@ -1,5 +1,6 @@
 use crate::fields::m31_limbs::{m31_to_limbs_gadget, M31LimbsBar};
 use crate::fields::table::TableBar;
+use crate::utils;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
 use recursive_stwo_bitcoin_dsl::bitcoin_system::{BitcoinSystemRef, Element};
@@ -124,6 +125,12 @@ impl Neg for &M31Bar {
 }
 
 impl M31Bar {
+    pub fn drop(&self) {
+        self.cs
+            .insert_script(utils::drop_gadget, [self.variable])
+            .unwrap();
+    }
+
     pub fn is_zero(&self) {
         assert_eq!(self.value.0, 0);
         self.cs

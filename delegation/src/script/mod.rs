@@ -1,11 +1,12 @@
 pub mod part1;
 
+pub mod part2;
+
 #[cfg(test)]
 mod test {
-    use crate::fiat_shamir::part1;
+    use crate::script::{part1, part2};
     use circle_plonk_dsl_hints::FiatShamirHints;
     use num_traits::One;
-    use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
     use recursive_stwo_bitcoin_dsl::ldm::LDM;
     use recursive_stwo_bitcoin_dsl::test_program;
     use recursive_stwo_bitcoin_dsl::treepp::*;
@@ -20,7 +21,7 @@ mod test {
     };
 
     #[test]
-    fn test_fiat_shamir() {
+    fn test_delegated() {
         let proof: PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher> =
             bincode::deserialize(include_bytes!("../data/hybrid_hash.bin")).unwrap();
         let config = PcsConfig {
@@ -52,6 +53,15 @@ mod test {
         let mut ldm = LDM::new();
 
         let cs = part1::generate_cs(&fiat_shamir_hints, &proof, config, &mut ldm).unwrap();
+        test_program(
+            cs,
+            script! {
+                { ldm.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+        .unwrap();
+
+        let cs = part2::generate_cs(&fiat_shamir_hints, &proof, &mut ldm).unwrap();
         test_program(
             cs,
             script! {

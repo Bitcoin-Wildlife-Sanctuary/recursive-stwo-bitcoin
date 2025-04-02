@@ -1,8 +1,5 @@
 use crate::channel::sha256::Sha256ChannelBar;
 use anyhow::Result;
-use bitcoin::opcodes::Ordinary::{
-    OP_DROP, OP_EQUALVERIFY, OP_GREATERTHANOREQUAL, OP_LESSTHANOREQUAL, OP_SWAP, OP_VERIFY,
-};
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, Bar};
 use recursive_stwo_bitcoin_dsl::basic::str::StrBar;
 use recursive_stwo_bitcoin_dsl::basic::u8::U8Bar;

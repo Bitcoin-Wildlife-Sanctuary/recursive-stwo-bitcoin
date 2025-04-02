@@ -1,7 +1,6 @@
 use crate::fields::cm31_limbs::CM31LimbsBar;
 use crate::fields::m31::M31Bar;
 use crate::fields::m31_limbs::M31LimbsBar;
-use crate::fields::qm31::QM31Bar;
 use crate::fields::table::TableBar;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar, CopyBar};

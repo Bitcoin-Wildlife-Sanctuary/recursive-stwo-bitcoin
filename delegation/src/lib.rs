@@ -1,3 +1,5 @@
-pub mod fiat_shamir;
+pub mod script;
 
 pub mod decommit;
+
+pub mod folding;

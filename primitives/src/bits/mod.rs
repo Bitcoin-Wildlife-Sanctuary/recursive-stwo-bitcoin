@@ -1,6 +1,5 @@
 use crate::fields::m31::M31Bar;
 use anyhow::Result;
-use bitcoin::opcodes::Ordinary::{OP_DUP, OP_ELSE, OP_TOALTSTACK};
 use recursive_stwo_bitcoin_dsl::bar::AllocBar;
 use recursive_stwo_bitcoin_dsl::basic::bool::BoolBar;
 use recursive_stwo_bitcoin_dsl::options::Options;
@@ -67,11 +66,24 @@ pub fn split_be_bits(a: &M31Bar, log_size: usize) -> Result<Vec<BoolBar>> {
 
     let mut cur = a.value.0;
     for _ in 0..log_size {
-        bits.push(cur & 1);
+        bits.push(cur & 1 != 0);
         cur >>= 1;
     }
+    assert_eq!(cur, 0);
 
-    todo!()
+    let cs = a.cs.clone();
+    cs.insert_script_complex(
+        split_be_bits_gadget,
+        [a.variable],
+        &Options::new().with_u32("log_size", log_size as u32),
+    )?;
+
+    let mut bit_vars = vec![];
+    for bit in bits {
+        bit_vars.push(BoolBar::new_function_output(&cs, bit)?);
+    }
+
+    Ok(bit_vars)
 }
 
 fn split_be_bits_gadget(_: &mut Stack, options: &Options) -> Result<Script> {
@@ -87,8 +99,53 @@ fn split_be_bits_gadget(_: &mut Stack, options: &Options) -> Result<Script> {
                 1 OP_TOALTSTACK
                 { 1 << i } OP_SUB
             OP_ELSE
-
+                0 OP_TOALTSTACK
             OP_ENDIF
         }
+
+        for _ in 1..log_size {
+            OP_FROMALTSTACK
+        }
     })
+}
+
+#[cfg(test)]
+mod test {
+    use crate::bits::split_be_bits;
+    use crate::fields::m31::M31Bar;
+    use rand::{Rng, SeedableRng};
+    use rand_chacha::ChaCha20Rng;
+    use recursive_stwo_bitcoin_dsl::bar::AllocBar;
+    use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
+    use recursive_stwo_bitcoin_dsl::test_program;
+    use recursive_stwo_bitcoin_dsl::treepp::*;
+    use stwo_prover::core::fields::m31::M31;
+
+    #[test]
+    fn test_split_be_bits() {
+        let mut prng = ChaCha20Rng::seed_from_u64(0);
+        let num = prng.gen_range(0..(1 << 21));
+
+        let mut bits = vec![];
+        for i in 0..21 {
+            bits.push((num >> i) & 1);
+        }
+
+        let cs = BitcoinSystemRef::new_ref();
+        let num_var = M31Bar::new_hint(&cs, M31::from(num)).unwrap();
+        let bits_vars = split_be_bits(&num_var, 21).unwrap();
+        for bit_var in bits_vars {
+            cs.set_program_output(&bit_var).unwrap()
+        }
+
+        test_program(
+            cs,
+            script! {
+                for bit in bits {
+                    { bit }
+                }
+            },
+        )
+        .unwrap();
+    }
 }

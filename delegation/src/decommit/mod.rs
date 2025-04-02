@@ -1,13 +1,19 @@
 use anyhow::Result;
 use circle_plonk_dsl_hints::FiatShamirHints;
 use itertools::Itertools;
+use num_traits::Zero;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
-use recursive_stwo_bitcoin_dsl::basic::sha256_hash::{bitcoin_num_to_bytes, Sha256HashBar};
+use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
+use recursive_stwo_bitcoin_dsl::options::Options;
+use recursive_stwo_bitcoin_dsl::stack::Stack;
+use recursive_stwo_bitcoin_dsl::treepp::*;
+use recursive_stwo_primitives::bits::split_be_bits;
 use recursive_stwo_primitives::fields::m31::M31Bar;
+use recursive_stwo_primitives::fields::qm31::QM31Bar;
 use recursive_stwo_primitives::utils::hash_many_m31;
 use serde::{Deserialize, Serialize};
-use sha2::Digest;
+use std::cmp::max;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use stwo_prover::core::fields::m31::{BaseField, M31};
 use stwo_prover::core::vcs::ops::MerkleHasher;
@@ -20,7 +26,7 @@ use stwo_prover::core::vcs::sha256_poseidon31_merkle::{
 use stwo_prover::examples::plonk_with_poseidon::air::PlonkWithPoseidonProof;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SingleLeafMerkleProof {
+pub struct DelegatedSingleLeafMerkleProof {
     pub query: usize,
 
     pub sibling_hashes: Vec<Sha256Hash>,
@@ -30,7 +36,7 @@ pub struct SingleLeafMerkleProof {
     pub depth: usize,
 }
 
-impl SingleLeafMerkleProof {
+impl DelegatedSingleLeafMerkleProof {
     pub fn from_stwo_proof(
         max_log_size: u32,
         raw_queries: &[usize],
@@ -126,7 +132,7 @@ impl SingleLeafMerkleProof {
                 cur >>= 1;
             }
 
-            res.push(SingleLeafMerkleProof {
+            res.push(DelegatedSingleLeafMerkleProof {
                 query,
                 sibling_hashes,
                 columns: queries_values_map.get(&query).unwrap().clone(),
@@ -155,26 +161,17 @@ impl SingleLeafMerkleProof {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct DelegatedDecommitHints {
-    pub precomputed_proofs: Vec<SingleLeafMerkleProof>,
-    pub trace_proofs: Vec<SingleLeafMerkleProof>,
-    pub interaction_proofs: Vec<SingleLeafMerkleProof>,
-    pub composition_proofs: Vec<SingleLeafMerkleProof>,
-}
-
 #[derive(Clone)]
-pub struct SingleLeafMerkleProofBar {
+pub struct DelegatingSinglePathMerkleProofBar {
     pub cs: BitcoinSystemRef,
-    pub value: SingleLeafMerkleProof,
+    pub value: DelegatedSingleLeafMerkleProof,
 
-    pub query: M31Bar,
     pub sibling_hashes: Vec<Sha256HashBar>,
     pub columns: Vec<M31Bar>,
 }
 
-impl AllocBar for SingleLeafMerkleProofBar {
-    type Value = SingleLeafMerkleProof;
+impl AllocBar for DelegatingSinglePathMerkleProofBar {
+    type Value = DelegatedSingleLeafMerkleProof;
 
     fn value(&self) -> Result<Self::Value> {
         Ok(self.value.clone())
@@ -185,8 +182,6 @@ impl AllocBar for SingleLeafMerkleProofBar {
         data: Self::Value,
         mode: AllocationMode,
     ) -> Result<Self> {
-        let query = M31Bar::new_variable(cs, M31::from(data.query as u32), mode)?;
-
         let mut sibling_hashes = vec![];
         for sibling_hash in data.sibling_hashes.iter() {
             sibling_hashes.push(Sha256HashBar::new_variable(cs, sibling_hash.clone(), mode)?);
@@ -210,76 +205,189 @@ impl AllocBar for SingleLeafMerkleProofBar {
         Ok(Self {
             cs: cs.clone(),
             value: data.clone(),
-            query,
             sibling_hashes,
             columns,
         })
     }
 }
 
-impl SingleLeafMerkleProofBar {
-    pub fn verify(&self, root: &Sha256HashBar) -> Result<()> {
-        let mut column_hash = hash_many_m31(&self.cs, &self.columns)?;
+impl DelegatingSinglePathMerkleProofBar {
+    pub fn verify(&self, query: &M31Bar, log_size: usize, root: &Sha256HashBar) -> Result<()> {
+        let mut bits_vars = split_be_bits(query, log_size)?;
+        if log_size > self.sibling_hashes.len() {
+            for i in 0..(log_size - self.sibling_hashes.len()) {
+                bits_vars[i].drop();
+            }
+            bits_vars.drain(..(log_size - self.sibling_hashes.len()));
+        }
+        let cur_hash = hash_many_m31(&self.cs, &self.columns)?;
 
-        todo!()
+        let mut input_idxs = vec![root.variable];
+        for (bit_var, hash_var) in bits_vars
+            .iter()
+            .rev()
+            .zip_eq(self.sibling_hashes.iter().rev())
+        {
+            input_idxs.push(hash_var.variable);
+            input_idxs.push(bit_var.variable);
+        }
+        input_idxs.push(cur_hash.variable);
+
+        let cs = query.cs().and(&root.cs());
+        cs.insert_script_complex(
+            verify_merkle_proof,
+            input_idxs,
+            &Options::new().with_u32("log_size", self.sibling_hashes.len() as u32),
+        )
     }
+}
+
+fn verify_merkle_proof(_: &mut Stack, options: &Options) -> Result<Script> {
+    let log_size = options.get_u32("log_size")?;
+    Ok(script! {
+        for _ in 0..log_size {
+            OP_SWAP
+            OP_NOTIF OP_SWAP OP_ENDIF
+            OP_CAT OP_SHA256
+        }
+        OP_EQUALVERIFY
+    })
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DelegatedDecommitHints {
+    pub proofs: Vec<DelegatedSingleLeafMerkleProof>,
 }
 
 impl DelegatedDecommitHints {
     pub fn compute(
         fiat_shamir_hints: &FiatShamirHints<Sha256Poseidon31MerkleChannel>,
         proof: &PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher>,
+        round: usize,
     ) -> Self {
-        let mut precomputed_proofs = vec![];
-        let mut trace_proofs = vec![];
-        let mut interaction_proofs = vec![];
-        let mut composition_proofs = vec![];
+        let max_log_size = *fiat_shamir_hints.n_columns_per_log_size[round]
+            .keys()
+            .max()
+            .unwrap();
 
-        for (i, v) in [
-            &mut precomputed_proofs,
-            &mut trace_proofs,
-            &mut interaction_proofs,
-            &mut composition_proofs,
-        ]
-        .iter_mut()
-        .enumerate()
-        {
-            let max_log_size = *fiat_shamir_hints.n_columns_per_log_size[i]
-                .keys()
-                .max()
-                .unwrap();
+        let proofs = DelegatedSingleLeafMerkleProof::from_stwo_proof(
+            max_log_size,
+            &fiat_shamir_hints
+                .unsorted_query_positions_per_log_size
+                .get(&max_log_size)
+                .unwrap(),
+            &proof.stark_proof.queried_values[round],
+            proof.stark_proof.commitments[round],
+            &fiat_shamir_hints.n_columns_per_log_size[round],
+            &proof.stark_proof.decommitments[round],
+        );
 
-            **v = SingleLeafMerkleProof::from_stwo_proof(
-                max_log_size,
-                &fiat_shamir_hints
-                    .unsorted_query_positions_per_log_size
-                    .get(&max_log_size)
-                    .unwrap(),
-                &proof.stark_proof.queried_values[i],
-                proof.stark_proof.commitments[i],
-                &fiat_shamir_hints.n_columns_per_log_size[i],
-                &proof.stark_proof.decommitments[i],
-            );
+        for proof in proofs.iter() {
+            proof.verify();
+        }
 
-            for proof in v.iter() {
-                proof.verify();
+        DelegatedDecommitHints { proofs }
+    }
+}
+
+#[derive(Clone)]
+pub struct DelegatedDecommitBar {
+    pub cs: BitcoinSystemRef,
+    pub proofs: Vec<DelegatingSinglePathMerkleProofBar>,
+}
+
+impl AllocBar for DelegatedDecommitBar {
+    type Value = DelegatedDecommitHints;
+
+    fn value(&self) -> Result<Self::Value> {
+        Ok(DelegatedDecommitHints {
+            proofs: self.proofs.iter().map(|v| v.value.clone()).collect_vec(),
+        })
+    }
+
+    fn new_variable(
+        cs: &BitcoinSystemRef,
+        value: Self::Value,
+        mode: AllocationMode,
+    ) -> Result<Self> {
+        let mut proofs = vec![];
+        for proof in value.proofs.iter() {
+            proofs.push(DelegatingSinglePathMerkleProofBar::new_variable(
+                cs,
+                proof.clone(),
+                mode,
+            )?);
+        }
+
+        Ok(Self {
+            cs: cs.clone(),
+            proofs,
+        })
+    }
+}
+
+impl DelegatedDecommitBar {
+    pub fn verify(
+        &self,
+        queries: &[M31Bar],
+        log_size: usize,
+        commitment_var: &Sha256HashBar,
+    ) -> Result<()> {
+        for (proof, query) in self.proofs.iter().zip_eq(queries.iter()) {
+            proof.verify(query, log_size, commitment_var)?;
+        }
+        Ok(())
+    }
+
+    pub fn input_elements(&self) -> Result<Vec<QM31Bar>> {
+        let mut results = vec![];
+        let zero = M31Bar::new_constant(&self.cs, M31::zero())?;
+
+        let f = |results: &mut Vec<QM31Bar>, columns: &[M31Bar]| {
+            assert!(columns.len() <= 8);
+
+            let mut first = Vec::with_capacity(4);
+            for i in 0..max(4, columns.len()) {
+                first.push(columns[i].clone());
             }
-        }
+            first.resize(4, zero.clone());
 
-        DelegatedDecommitHints {
-            precomputed_proofs,
-            trace_proofs,
-            interaction_proofs,
-            composition_proofs,
+            results.push(QM31Bar::from_m31(
+                &first[0], &first[1], &first[2], &first[3],
+            ));
+
+            if columns.len() > 4 {
+                let mut second = Vec::with_capacity(4);
+                for i in 4..columns.len() {
+                    second.push(columns[i].clone());
+                }
+                second.resize(4, zero.clone());
+
+                results.push(QM31Bar::from_m31(
+                    &second[0], &second[1], &second[2], &second[3],
+                ));
+            }
+        };
+
+        for proof in self.proofs.iter() {
+            f(&mut results, &proof.columns);
         }
+        Ok(results)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::decommit::DelegatedDecommitHints;
+    use crate::decommit::{DelegatedDecommitBar, DelegatedDecommitHints};
     use circle_plonk_dsl_hints::FiatShamirHints;
     use num_traits::One;
+    use recursive_stwo_bitcoin_dsl::bar::AllocBar;
+    use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
+    use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
+    use recursive_stwo_bitcoin_dsl::test_program;
+    use recursive_stwo_bitcoin_dsl::treepp::*;
+    use recursive_stwo_primitives::fields::m31::M31Bar;
+    use stwo_prover::core::fields::m31::M31;
     use stwo_prover::core::fields::qm31::QM31;
     use stwo_prover::core::fri::FriConfig;
     use stwo_prover::core::pcs::PcsConfig;
@@ -320,6 +428,33 @@ mod test {
             ],
         );
 
-        let _ = DelegatedDecommitHints::compute(&fiat_shamir_hints, &proof);
+        let decommit_preprocessed_hints =
+            DelegatedDecommitHints::compute(&fiat_shamir_hints, &proof, 0);
+
+        let cs = BitcoinSystemRef::new_ref();
+        let decommit_preprocessed_var =
+            DelegatedDecommitBar::new_hint(&cs, decommit_preprocessed_hints).unwrap();
+
+        let mut queries_vars = vec![];
+        for query in fiat_shamir_hints.unsorted_query_positions_per_log_size
+            [&fiat_shamir_hints.max_first_layer_column_log_size]
+            .iter()
+        {
+            queries_vars.push(M31Bar::new_hint(&cs, M31::from(*query)).unwrap());
+        }
+
+        let preprocessed_commitment_var =
+            Sha256HashBar::new_hint(&cs, fiat_shamir_hints.preprocessed_commitment).unwrap();
+
+        decommit_preprocessed_var
+            .verify(
+                &queries_vars,
+                fiat_shamir_hints.max_first_layer_column_log_size as usize,
+                &preprocessed_commitment_var,
+            )
+            .unwrap();
+
+        let _ = decommit_preprocessed_var.input_elements().unwrap();
+        test_program(cs, script! {}).unwrap();
     }
 }

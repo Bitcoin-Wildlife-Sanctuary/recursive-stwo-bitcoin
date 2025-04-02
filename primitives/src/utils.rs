@@ -8,7 +8,6 @@ use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use recursive_stwo_bitcoin_dsl::options::Options;
 use recursive_stwo_bitcoin_dsl::stack::Stack;
 use recursive_stwo_bitcoin_dsl::treepp::*;
-use sha2::digest::typenum::Bit;
 use sha2::{Digest, Sha256};
 use stwo_prover::core::vcs::sha256_hash::Sha256Hash;
 
@@ -61,14 +60,14 @@ pub fn hash_many_m31(cs: &BitcoinSystemRef, elems: &[M31Bar]) -> Result<Sha256Ha
 
     for i in 1..elems.len() {
         let mut sha256 = sha2::Sha256::new();
-        Digest::update(&mut sha256, &hash);
         Digest::update(&mut sha256, bitcoin_num_to_bytes(elems[i].value.0 as i64));
+        Digest::update(&mut sha256, &hash);
         hash.copy_from_slice(sha256.finalize().as_slice());
     }
 
     cs.insert_script_complex(
         hash_many_m31_gadget,
-        elems.iter().map(|v| v.variable).collect_vec(),
+        elems.iter().rev().map(|v| v.variable).collect_vec(),
         &Options::new().with_u32("n", elems.len() as u32),
     )?;
 
@@ -85,4 +84,10 @@ pub fn hash_many_m31_gadget(_: &mut Stack, options: &Options) -> Result<Script> 
             OP_CAT OP_SHA256
         }
     })
+}
+
+pub fn drop_gadget() -> Script {
+    script! {
+        OP_DROP
+    }
 }

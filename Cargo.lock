@@ -220,9 +220,9 @@ dependencies = [
 
 [[package]]
 name = "blake3"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b17679a8d69b6d7fd9cd9801a536cec9fa5e5970b69f9d4747f70b39b031f5e7"
+checksum = "34a796731680be7931955498a16a10b2270c7762963d5d570fdbfe02dcbf314f"
 dependencies = [
  "arrayref",
  "arrayvec",
@@ -257,9 +257,9 @@ dependencies = [
 
 [[package]]
 name = "bytemuck_derive"
-version = "1.9.2"
+version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ff22c2722516255d1823ce3cc4bc0b154dbc9364be5c905d6baa6eccbbc8774"
+checksum = "7ecc273b49b3205b83d648f0690daa588925572cc5063745bfe547fe7ec8e1a1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -282,10 +282,237 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "circle-plonk-dsl-answer"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "bincode",
+ "circle-plonk-dsl-circle",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-data-structures",
+ "circle-plonk-dsl-fiat-shamir",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-query",
+ "indexmap",
+ "itertools 0.14.0",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-bits"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-channel"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-poseidon31",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-circle"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-bits",
+ "circle-plonk-dsl-channel",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "itertools 0.14.0",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-constraint-system"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "num-traits",
+ "serde",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-data-structures"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-bits",
+ "circle-plonk-dsl-channel",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-line",
+ "circle-plonk-dsl-merkle",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-fiat-shamir"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "bincode",
+ "circle-plonk-dsl-bits",
+ "circle-plonk-dsl-channel",
+ "circle-plonk-dsl-circle",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-data-structures",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-hints",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-fields"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "num-traits",
+ "rand",
+ "stwo-prover",
+]
+
+[[package]]
 name = "circle-plonk-dsl-hints"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#25f7a531ae5ebd7d18ce17c803876e425d017d37"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
 dependencies = [
+ "itertools 0.14.0",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-last-answer"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "bincode",
+ "circle-plonk-dsl-answer",
+ "circle-plonk-dsl-circle",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-data-structures",
+ "circle-plonk-dsl-last-fiat-shamir",
+ "circle-plonk-dsl-merkle",
+ "circle-plonk-dsl-query",
+ "itertools 0.14.0",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-last-data-structures"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-data-structures",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-line",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-last-fiat-shamir"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "bincode",
+ "circle-plonk-dsl-channel",
+ "circle-plonk-dsl-circle",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-data-structures",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-data-structures",
+ "circle-plonk-dsl-merkle",
+ "itertools 0.14.0",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-last-folding"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "bincode",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-answer",
+ "circle-plonk-dsl-last-data-structures",
+ "circle-plonk-dsl-last-fiat-shamir",
+ "itertools 0.14.0",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-line"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "itertools 0.14.0",
+ "num-traits",
+ "rand",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-merkle"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-poseidon31",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-poseidon31"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
+name = "circle-plonk-dsl-query"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+dependencies = [
+ "circle-plonk-dsl-bits",
+ "circle-plonk-dsl-circle",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-fields",
  "itertools 0.14.0",
  "num-traits",
  "stwo-prover",
@@ -578,9 +805,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.1"
+version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d75b0bedcc4fe52caa0e03d9f1151a323e4aa5e2d78ba3580400cd3c9e2bc4bc"
+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "paste"
@@ -720,8 +947,11 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bincode",
+ "bitcoin",
  "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-folding",
  "itertools 0.14.0",
+ "log",
  "num-traits",
  "recursive-stwo-bitcoin-dsl",
  "recursive-stwo-primitives",
