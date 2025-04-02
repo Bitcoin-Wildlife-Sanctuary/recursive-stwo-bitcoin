@@ -1,7 +1,7 @@
 use crate::decommit::{DelegatedDecommitBar, DelegatedDecommitHints};
 use crate::folding::{DelegatedFirstLayerBar, DelegatedFirstLayerHints};
 use anyhow::Result;
-use circle_plonk_dsl_hints::{AnswerHints, FiatShamirHints};
+use circle_plonk_dsl_hints::FiatShamirHints;
 use recursive_stwo_bitcoin_dsl::bar::AllocBar;
 use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
@@ -15,6 +15,7 @@ use stwo_prover::examples::plonk_with_poseidon::air::PlonkWithPoseidonProof;
 pub fn generate_cs(
     fiat_shamir_hints: &FiatShamirHints<Sha256Poseidon31MerkleChannel>,
     proof: &PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher>,
+    first_layer_hints: &DelegatedFirstLayerHints,
     ldm: &mut LDM,
 ) -> Result<BitcoinSystemRef> {
     let cs = BitcoinSystemRef::new_ref();
@@ -54,10 +55,7 @@ pub fn generate_cs(
         ldm.write(format!("delegated_decommit_composition_input_{}", i), elem)?;
     }
 
-    let fri_answer_hints = AnswerHints::compute(&fiat_shamir_hints, &proof);
-    let first_layer_hints =
-        DelegatedFirstLayerHints::compute(&fiat_shamir_hints, &fri_answer_hints, &proof);
-    let first_layer_var = DelegatedFirstLayerBar::new_hint(&cs, first_layer_hints)?;
+    let first_layer_var = DelegatedFirstLayerBar::new_hint(&cs, first_layer_hints.clone())?;
 
     let first_layer_commitment_var: Sha256HashBar = ldm.read("delegated_first_layer_commit")?;
     first_layer_var.verify(
