@@ -949,9 +949,29 @@ dependencies = [
  "bincode",
  "bitcoin",
  "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-answer",
+ "circle-plonk-dsl-last-fiat-shamir",
+ "itertools 0.14.0",
+ "num-traits",
+ "recursive-stwo-bitcoin-dsl",
+ "recursive-stwo-primitives",
+ "serde",
+ "sha2",
+ "stwo-prover",
+]
+
+[[package]]
+name = "recursive-stwo-last"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "bitcoin",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-answer",
+ "circle-plonk-dsl-last-fiat-shamir",
  "circle-plonk-dsl-last-folding",
  "itertools 0.14.0",
- "log",
  "num-traits",
  "recursive-stwo-bitcoin-dsl",
  "recursive-stwo-primitives",

@@ -1,5 +1,5 @@
 [workspace]
-members = ["bitcoin_dsl", "delegation", "primitives"]
+members = ["bitcoin_dsl", "delegation", "last", "primitives"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -19,6 +19,8 @@ stwo-prover = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle
 rust-bitcoin-m31 = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-m31" }
 circle-plonk-dsl-hints = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
 circle-plonk-dsl-last-folding = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
+circle-plonk-dsl-last-fiat-shamir = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
+circle-plonk-dsl-last-answer = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
 itertools = "0.14.0"
 
 [profile.release]

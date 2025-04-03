@@ -401,7 +401,7 @@ mod test {
     #[test]
     fn test_decommitment() {
         let proof: PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher> =
-            bincode::deserialize(include_bytes!("../data/hybrid_hash.bin")).unwrap();
+            bincode::deserialize(include_bytes!("../../../data/hybrid_hash.bin")).unwrap();
         let config = PcsConfig {
             pow_bits: 28,
             fri_config: FriConfig::new(7, 9, 8),
