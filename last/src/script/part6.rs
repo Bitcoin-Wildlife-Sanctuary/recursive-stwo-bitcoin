@@ -12,20 +12,8 @@ pub fn generate_cs(ldm: &mut LDM) -> Result<BitcoinSystemRef> {
     let cs = BitcoinSystemRef::new_ref();
     ldm.init(&cs)?;
 
-    let trace_a_val_0: QM31Bar = ldm.read("trace_a_val_0")?;
-    let trace_a_val_1: QM31Bar = ldm.read("trace_a_val_1")?;
-    let trace_a_val_2: QM31Bar = ldm.read("trace_a_val_2")?;
-    let trace_a_val_3: QM31Bar = ldm.read("trace_a_val_3")?;
-
-    let trace_b_val_0: QM31Bar = ldm.read("trace_b_val_0")?;
-    let trace_b_val_1: QM31Bar = ldm.read("trace_b_val_1")?;
-    let trace_b_val_2: QM31Bar = ldm.read("trace_b_val_2")?;
-    let trace_b_val_3: QM31Bar = ldm.read("trace_b_val_3")?;
-
-    let a_val = &(&(&trace_a_val_0 + &trace_a_val_1.shift_by_i()) + &trace_a_val_2.shift_by_j())
-        + &trace_a_val_3.shift_by_ij();
-    let b_val = &(&(&trace_b_val_0 + &trace_b_val_1.shift_by_i()) + &trace_b_val_2.shift_by_j())
-        + &trace_b_val_3.shift_by_ij();
+    let trace_a_val: QM31Bar = ldm.read("trace_a_val")?;
+    let trace_b_val: QM31Bar = ldm.read("trace_b_val")?;
 
     let preprocessed_op1: QM31Bar = ldm.read("preprocessed_op1")?;
     let preprocessed_op3: QM31Bar = ldm.read("preprocessed_op3")?;
@@ -39,17 +27,12 @@ pub fn generate_cs(ldm: &mut LDM) -> Result<BitcoinSystemRef> {
 
     let is_arith = &one_minus_op3 * (&table, &one_minus_op4);
 
-    let trace_c_val_0: QM31Bar = ldm.read("trace_c_val_0")?;
-    let trace_c_val_1: QM31Bar = ldm.read("trace_c_val_1")?;
-    let trace_c_val_2: QM31Bar = ldm.read("trace_c_val_2")?;
-    let trace_c_val_3: QM31Bar = ldm.read("trace_c_val_3")?;
-    let c_val = &(&(&trace_c_val_0 + &trace_c_val_1.shift_by_i()) + &trace_c_val_2.shift_by_j())
-        + &trace_c_val_3.shift_by_ij();
+    let trace_c_val: QM31Bar = ldm.read("trace_c_val")?;
 
     let mut sum: QM31Bar = ldm.read("arith_sum_part_5")?;
-    sum = &sum + &c_val;
-    sum = &sum - &(&(&is_arith * (&table, &preprocessed_op1)) * (&table, &(&a_val + &b_val)));
-    sum = &sum - &(&(&one_minus_op1 * (&table, &a_val)) * (&table, &b_val));
+    sum = &sum + &trace_c_val;
+    sum = &sum - &(&(&is_arith * (&table, &preprocessed_op1)) * (&table, &(&trace_a_val + &trace_b_val)));
+    sum = &sum - &(&(&one_minus_op1 * (&table, &trace_a_val)) * (&table, &trace_b_val));
 
     let random_coeff: QM31Bar = ldm.read("random_coeff")?;
     let accumulation: QM31Bar = ldm.read("eval_acc_accumulation_part4")?;

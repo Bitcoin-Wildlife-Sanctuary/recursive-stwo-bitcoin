@@ -7,8 +7,11 @@ use recursive_stwo_primitives::fields::m31::M31Bar;
 use recursive_stwo_primitives::fields::qm31::QM31Bar;
 use recursive_stwo_primitives::fields::table::TableBar;
 use stwo_prover::core::fields::m31::M31;
+use stwo_prover::core::poly::circle::CanonicCoset;
 use stwo_prover::core::vcs::sha256_merkle::Sha256MerkleHasher;
 use stwo_prover::examples::plonk_without_poseidon::air::PlonkWithoutPoseidonProof;
+use recursive_stwo_primitives::circle::CirclePointQM31Bar;
+use recursive_stwo_primitives::quotient::LineCoeffRandomizerBar;
 
 pub fn generate_cs(
     proof: &PlonkWithoutPoseidonProof<Sha256MerkleHasher>,
@@ -49,6 +52,25 @@ pub fn generate_cs(
 
     let composition: QM31Bar = ldm.read("composition")?;
     composition.equalverify(&expected_composition)?;
+    
+    let line_coeff_randomizer_26 = LineCoeffRandomizerBar::new(&cs)?;
+    ldm.write("line_coeff_randomizer_26_alpha_0", &line_coeff_randomizer_26.alpha)?;
+
+    let line_coeff_randomizer_28 = LineCoeffRandomizerBar::new(&cs)?;
+    ldm.write("line_coeff_randomizer_28_alpha_0", &line_coeff_randomizer_28.alpha)?;
+
+    let oods_x: QM31Bar = ldm.read("oods_x")?;
+    let oods_y: QM31Bar = ldm.read("oods_y")?;
+    let oods_point = CirclePointQM31Bar {
+        x: oods_x,
+        y: oods_y,
+    };
+
+    let shift_point = CanonicCoset::new(proof.stmt0.log_size_plonk).step().mul_signed(-1);
+    let oods_shifted_point = &oods_point + (&table, &shift_point);
+    
+    ldm.write("oods_shifted_x", &oods_shifted_point.x)?;
+    ldm.write("oods_shifted_y", &oods_shifted_point.y)?;
 
     ldm.save()?;
     Ok(cs)

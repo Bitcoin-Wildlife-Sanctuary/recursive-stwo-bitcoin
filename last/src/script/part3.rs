@@ -103,6 +103,13 @@ pub fn generate_cs(
     let trace_c_val_2 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[1][10][0])?;
     let trace_c_val_3 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[1][11][0])?;
 
+    let trace_a_val = &(&(&trace_a_val_0 + &trace_a_val_1.shift_by_i()) + &trace_a_val_2.shift_by_j())
+        + &trace_a_val_3.shift_by_ij();
+    let trace_b_val = &(&(&trace_b_val_0 + &trace_b_val_1.shift_by_i()) + &trace_b_val_2.shift_by_j())
+        + &trace_b_val_3.shift_by_ij();
+    let trace_c_val = &(&(&trace_c_val_0 + &trace_c_val_1.shift_by_i()) + &trace_c_val_2.shift_by_j())
+        + &trace_c_val_3.shift_by_ij();
+
     ldm.write("trace_a_val_0", &trace_a_val_0)?;
     ldm.write("trace_a_val_1", &trace_a_val_1)?;
     ldm.write("trace_a_val_2", &trace_a_val_2)?;
@@ -115,6 +122,9 @@ pub fn generate_cs(
     ldm.write("trace_c_val_1", &trace_c_val_1)?;
     ldm.write("trace_c_val_2", &trace_c_val_2)?;
     ldm.write("trace_c_val_3", &trace_c_val_3)?;
+    ldm.write("trace_a_val", &trace_a_val)?;
+    ldm.write("trace_b_val", &trace_b_val)?;
+    ldm.write("trace_c_val", &trace_c_val)?;
 
     channel_var.mix_felts(&[
         trace_a_val_0.clone(),
@@ -150,6 +160,14 @@ pub fn generate_cs(
         + &interaction_2.shift_by_j())
         + &interaction_3.shift_by_ij();
 
+    ldm.write("interaction_prev_0", &interaction_prev_0)?;
+    ldm.write("interaction_prev_1", &interaction_prev_1)?;
+    ldm.write("interaction_prev_2", &interaction_prev_2)?;
+    ldm.write("interaction_prev_3", &interaction_prev_3)?;
+    ldm.write("interaction_0", &interaction_0)?;
+    ldm.write("interaction_1", &interaction_1)?;
+    ldm.write("interaction_2", &interaction_2)?;
+    ldm.write("interaction_3", &interaction_3)?;
     ldm.write("interaction_prev", &interaction_prev)?;
     ldm.write("interaction", &interaction)?;
 
@@ -172,6 +190,10 @@ pub fn generate_cs(
     let composition = &(&(&composition_0 + &composition_1.shift_by_i())
         + &composition_2.shift_by_j())
         + &composition_3.shift_by_ij();
+    ldm.write("composition_0", &composition_0)?;
+    ldm.write("composition_1", &composition_1)?;
+    ldm.write("composition_2", &composition_2)?;
+    ldm.write("composition_3", &composition_3)?;
     ldm.write("composition", &composition)?;
 
     channel_var.mix_felts(&[
