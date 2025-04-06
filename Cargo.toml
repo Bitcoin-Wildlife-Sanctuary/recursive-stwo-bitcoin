@@ -47,3 +47,6 @@ lto = "thin"
 incremental = true
 debug-assertions = true
 debug = true
+
+[patch.'https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle-poseidon-plonk/']
+stwo-prover = { path = "../stwo-circle-poseidon-plonk/crates/prover" }

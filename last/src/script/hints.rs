@@ -284,7 +284,7 @@ impl<MC: MerkleChannel> LastFiatShamirHints<MC> {
 
 #[cfg(test)]
 mod test {
-    use crate::script::fiat_shamir::hints::LastFiatShamirHints;
+    use crate::script::hints::LastFiatShamirHints;
     use recursive_stwo_delegation::script::compute_delegation_inputs;
     use stwo_prover::core::fri::FriConfig;
     use stwo_prover::core::pcs::PcsConfig;
@@ -296,7 +296,7 @@ mod test {
     #[test]
     fn test_last_fiat_shamir_hints() {
         let proof: PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher> =
-            bincode::deserialize(include_bytes!("../../../../data/hybrid_hash.bin")).unwrap();
+            bincode::deserialize(include_bytes!("../../../data/hybrid_hash.bin")).unwrap();
         let config = PcsConfig {
             pow_bits: 28,
             fri_config: FriConfig::new(7, 9, 8),
@@ -305,7 +305,7 @@ mod test {
         let inputs = compute_delegation_inputs(&proof, config);
 
         let proof_last: PlonkWithoutPoseidonProof<Sha256MerkleHasher> =
-            bincode::deserialize(include_bytes!("../../../../data/bitcoin_proof.bin")).unwrap();
+            bincode::deserialize(include_bytes!("../../../data/bitcoin_proof.bin")).unwrap();
         let config_last = PcsConfig {
             pow_bits: 28,
             fri_config: FriConfig::new(0, 9, 8),

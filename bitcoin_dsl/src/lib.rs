@@ -80,15 +80,19 @@ impl Pushable for CirclePoint<QM31> {
     }
 }
 
-pub fn test_program(cs: BitcoinSystemRef, expected_stack: Script) -> Result<()> {
+pub fn test_program(cs: BitcoinSystemRef, expected_stack: Script) -> Result<usize> {
     test_program_generic(cs, expected_stack, true)
 }
 
-pub fn test_program_without_opcat(cs: BitcoinSystemRef, expected_stack: Script) -> Result<()> {
+pub fn test_program_without_opcat(cs: BitcoinSystemRef, expected_stack: Script) -> Result<usize> {
     test_program_generic(cs, expected_stack, false)
 }
 
-fn test_program_generic(cs: BitcoinSystemRef, expected_stack: Script, opcat: bool) -> Result<()> {
+fn test_program_generic(
+    cs: BitcoinSystemRef,
+    expected_stack: Script,
+    opcat: bool,
+) -> Result<usize> {
     let program = Compiler::compile(cs)?;
 
     let mut script = script! {
@@ -118,7 +122,8 @@ fn test_program_generic(cs: BitcoinSystemRef, expected_stack: Script, opcat: boo
 
     let script = Script::from_bytes(script);
 
-    println!("script size: {}", script.len());
+    let script_len = script.len();
+    println!("script size: {}", script_len);
 
     let mut options = Options::default();
     if !opcat {
@@ -158,7 +163,7 @@ fn test_program_generic(cs: BitcoinSystemRef, expected_stack: Script, opcat: boo
     println!("max stack size: {}", exec.stats().max_nb_stack_items);
 
     if res.success {
-        Ok(())
+        Ok(script_len)
     } else {
         Err(Error::msg("Script execution is not successful"))
     }

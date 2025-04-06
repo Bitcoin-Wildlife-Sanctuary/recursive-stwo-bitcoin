@@ -14,6 +14,8 @@ pub mod input_sum;
 
 pub mod composition;
 
+pub mod quotient;
+
 #[cfg(test)]
 mod test {
     use crate::fields::m31::M31Bar;

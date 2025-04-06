@@ -1147,7 +1147,6 @@ dependencies = [
 [[package]]
 name = "stwo-prover"
 version = "0.1.1"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle-poseidon-plonk/?branch=cp-poseidon-flattened#73d9970a24012a194f90fc74adeac63d1fee00e3"
 dependencies = [
  "bincode",
  "blake2",

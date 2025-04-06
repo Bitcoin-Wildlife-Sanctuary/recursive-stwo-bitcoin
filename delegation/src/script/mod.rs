@@ -441,7 +441,7 @@ mod test {
             }
         }
 
-        let mut expected_elements = compute_delegation_inputs(&proof, config)
+        let expected_elements = compute_delegation_inputs(&proof, config)
             .iter()
             .map(|x| x.1)
             .collect_vec();

@@ -1,4 +1,4 @@
-use crate::script::fiat_shamir::hints::LastFiatShamirHints;
+use crate::script::hints::LastFiatShamirHints;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::AllocBar;
 use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
@@ -131,37 +131,37 @@ pub fn generate_cs(
         trace_c_val_3.clone(),
     ]);
 
-    let interaction_0 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][0][0])?;
-    let interaction_next_0 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][0][1])?;
+    let interaction_prev_0 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][0][0])?;
+    let interaction_0 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][0][1])?;
 
-    let interaction_1 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][1][0])?;
-    let interaction_next_1 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][1][1])?;
+    let interaction_prev_1 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][1][0])?;
+    let interaction_1 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][1][1])?;
 
-    let interaction_2 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][2][0])?;
-    let interaction_next_2 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][2][1])?;
+    let interaction_prev_2 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][2][0])?;
+    let interaction_2 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][2][1])?;
 
-    let interaction_3 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][3][0])?;
-    let interaction_next_3 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][3][1])?;
+    let interaction_prev_3 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][3][0])?;
+    let interaction_3 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[2][3][1])?;
 
+    let interaction_prev = &(&(&interaction_prev_0 + &interaction_prev_1.shift_by_i())
+        + &interaction_prev_2.shift_by_j())
+        + &interaction_prev_3.shift_by_ij();
     let interaction = &(&(&interaction_0 + &interaction_1.shift_by_i())
         + &interaction_2.shift_by_j())
         + &interaction_3.shift_by_ij();
-    let interaction_next = &(&(&interaction_next_0 + &interaction_next_1.shift_by_i())
-        + &interaction_next_2.shift_by_j())
-        + &interaction_next_3.shift_by_ij();
 
+    ldm.write("interaction_prev", &interaction_prev)?;
     ldm.write("interaction", &interaction)?;
-    ldm.write("interaction_next", &interaction_next)?;
 
     channel_var.mix_felts(&[
+        interaction_prev_0.clone(),
         interaction_0.clone(),
-        interaction_next_0.clone(),
+        interaction_prev_1.clone(),
         interaction_1.clone(),
-        interaction_next_1.clone(),
+        interaction_prev_2.clone(),
         interaction_2.clone(),
-        interaction_next_2.clone(),
+        interaction_prev_3.clone(),
         interaction_3.clone(),
-        interaction_next_3.clone(),
     ]);
 
     let composition_0 = QM31Bar::new_hint(&cs, proof.stark_proof.sampled_values[3][0][0])?;

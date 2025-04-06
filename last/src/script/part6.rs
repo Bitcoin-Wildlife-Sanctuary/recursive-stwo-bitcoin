@@ -3,6 +3,7 @@ use num_traits::One;
 use recursive_stwo_bitcoin_dsl::bar::AllocBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use recursive_stwo_bitcoin_dsl::ldm::LDM;
+use recursive_stwo_primitives::composition::PointEvaluationAccumulatorBar;
 use recursive_stwo_primitives::fields::qm31::QM31Bar;
 use recursive_stwo_primitives::fields::table::TableBar;
 use stwo_prover::core::fields::qm31::QM31;
@@ -22,9 +23,9 @@ pub fn generate_cs(ldm: &mut LDM) -> Result<BitcoinSystemRef> {
     let trace_b_val_3: QM31Bar = ldm.read("trace_b_val_3")?;
 
     let a_val = &(&(&trace_a_val_0 + &trace_a_val_1.shift_by_i()) + &trace_a_val_2.shift_by_j())
-        + &trace_a_val_3;
+        + &trace_a_val_3.shift_by_ij();
     let b_val = &(&(&trace_b_val_0 + &trace_b_val_1.shift_by_i()) + &trace_b_val_2.shift_by_j())
-        + &trace_b_val_3;
+        + &trace_b_val_3.shift_by_ij();
 
     let preprocessed_op1: QM31Bar = ldm.read("preprocessed_op1")?;
     let preprocessed_op3: QM31Bar = ldm.read("preprocessed_op3")?;
@@ -43,14 +44,23 @@ pub fn generate_cs(ldm: &mut LDM) -> Result<BitcoinSystemRef> {
     let trace_c_val_2: QM31Bar = ldm.read("trace_c_val_2")?;
     let trace_c_val_3: QM31Bar = ldm.read("trace_c_val_3")?;
     let c_val = &(&(&trace_c_val_0 + &trace_c_val_1.shift_by_i()) + &trace_c_val_2.shift_by_j())
-        + &trace_c_val_3;
+        + &trace_c_val_3.shift_by_ij();
 
     let mut sum: QM31Bar = ldm.read("arith_sum_part_5")?;
     sum = &sum + &c_val;
     sum = &sum - &(&(&is_arith * (&table, &preprocessed_op1)) * (&table, &(&a_val + &b_val)));
     sum = &sum - &(&(&one_minus_op1 * (&table, &a_val)) * (&table, &b_val));
 
-    ldm.write("arith_sum_part_6", &sum)?;
+    let random_coeff: QM31Bar = ldm.read("random_coeff")?;
+    let accumulation: QM31Bar = ldm.read("eval_acc_accumulation_part4")?;
+
+    let mut eval_acc = PointEvaluationAccumulatorBar {
+        random_coeff,
+        accumulation,
+    };
+
+    eval_acc.accumulate(&table, &sum);
+    ldm.write("eval_acc_accumulation_part6", &eval_acc.accumulation)?;
 
     ldm.save()?;
     Ok(cs)
