@@ -184,9 +184,9 @@ pub fn generate_cs(
 
     channel_var.mix_felts(&coeffs_hash);
 
-    let mut d = [0u8; 32];
-    d[0..8].copy_from_slice(&proof.stark_proof.proof_of_work.to_le_bytes());
-    channel_var.mix_str(&StrBar::new_constant(&cs, d.to_vec())?);
+    let nonce = &StrBar::new_hint(&cs, proof.stark_proof.proof_of_work.to_le_bytes().to_vec())?
+        + &StrBar::new_constant(&cs, [0x0; 24].to_vec())?;
+    channel_var.mix_str(&nonce);
 
     verify_pow(&channel_var, config.pow_bits as usize)?;
 

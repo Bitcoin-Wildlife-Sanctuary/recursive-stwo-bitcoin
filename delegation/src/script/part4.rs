@@ -11,15 +11,13 @@ use stwo_prover::core::vcs::sha256_poseidon31_merkle::Sha256Poseidon31MerkleChan
 pub fn generate_cs(
     fiat_shamir_hints: &FiatShamirHints<Sha256Poseidon31MerkleChannel>,
     inner_layers_hints: &DelegatedInnerLayersHints,
-    ldm_1: &mut LDM,
-    ldm_2: &mut LDM,
+    ldm: &mut LDM,
 ) -> Result<BitcoinSystemRef> {
     let cs = BitcoinSystemRef::new_ref();
-    ldm_1.init(&cs)?;
-    ldm_2.init(&cs)?;
+    ldm.init(&cs)?;
 
-    let queries_felt_1: QM31Bar = ldm_1.read("delegated_queries_felt_1")?;
-    let queries_felt_2: QM31Bar = ldm_1.read("delegated_queries_felt_2")?;
+    let queries_felt_1: QM31Bar = ldm.read("delegated_queries_felt_1")?;
+    let queries_felt_2: QM31Bar = ldm.read("delegated_queries_felt_2")?;
 
     let mut queries = vec![];
     queries.extend(queries_felt_1.to_m31_array());
@@ -33,7 +31,7 @@ pub fn generate_cs(
         .take(3)
     {
         let inner_layer_var = DelegatedInnerLayersPerLayerBar::new_hint(&cs, v.to_vec())?;
-        let inner_layer_commitment_var: Sha256HashBar = ldm_1.read(format!(
+        let inner_layer_commitment_var: Sha256HashBar = ldm.read(format!(
             "delegated_inner_layers_commit_{}",
             fiat_shamir_hints.inner_layer_commitments.len() - 1 - i
         ))?;
@@ -44,11 +42,10 @@ pub fn generate_cs(
         )?;
         let decommit_interaction_input_elements = inner_layer_var.input_elements()?;
         for (j, elem) in decommit_interaction_input_elements.iter().enumerate() {
-            ldm_2.write(format!("delegated_inner_layers_input_{}_{}", i, j), elem)?;
+            ldm.write(format!("delegated_inner_layers_input_{}_{}", i, j), elem)?;
         }
     }
 
-    ldm_1.save()?;
-    ldm_2.save()?;
+    ldm.save()?;
     Ok(cs)
 }

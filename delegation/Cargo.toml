@@ -8,6 +8,7 @@ recursive-stwo-bitcoin-dsl = { path = "../bitcoin_dsl" }
 recursive-stwo-primitives = { path = "../primitives" }
 anyhow.workspace = true
 circle-plonk-dsl-hints.workspace = true
+circle-plonk-dsl-last-folding.workspace = true
 circle-plonk-dsl-last-fiat-shamir.workspace = true
 circle-plonk-dsl-last-answer.workspace = true
 stwo-prover.workspace = true

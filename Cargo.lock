@@ -951,6 +951,7 @@ dependencies = [
  "circle-plonk-dsl-hints",
  "circle-plonk-dsl-last-answer",
  "circle-plonk-dsl-last-fiat-shamir",
+ "circle-plonk-dsl-last-folding",
  "itertools 0.14.0",
  "num-traits",
  "recursive-stwo-bitcoin-dsl",
@@ -974,6 +975,7 @@ dependencies = [
  "itertools 0.14.0",
  "num-traits",
  "recursive-stwo-bitcoin-dsl",
+ "recursive-stwo-delegation",
  "recursive-stwo-primitives",
  "serde",
  "sha2",
@@ -993,6 +995,7 @@ dependencies = [
  "rand_chacha",
  "recursive-stwo-bitcoin-dsl",
  "rust-bitcoin-m31",
+ "serde",
  "sha2",
  "stwo-prover",
 ]

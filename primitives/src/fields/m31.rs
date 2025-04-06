@@ -85,6 +85,7 @@ impl Mul for &M31Bar {
     type Output = M31Bar;
 
     fn mul(self, rhs: Self) -> Self::Output {
+        println!("Warning: multiplication without using a table");
         let res = self.value * rhs.value;
 
         let cs = self.cs.and(&rhs.cs);

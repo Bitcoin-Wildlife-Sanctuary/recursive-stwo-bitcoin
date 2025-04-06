@@ -5,7 +5,7 @@ use crate::fields::m31_limbs::M31LimbsBar;
 use crate::fields::qm31_limbs::QM31LimbsBar;
 use crate::fields::table::TableBar;
 use anyhow::Result;
-use num_traits::One;
+use num_traits::{One, Zero};
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar, CopyBar};
 use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
@@ -84,6 +84,17 @@ impl Add<&CM31Bar> for &QM31Bar {
     type Output = QM31Bar;
 
     fn add(self, rhs: &CM31Bar) -> Self::Output {
+        let second = self.second.copy().unwrap();
+        let first = &self.first + rhs;
+
+        QM31Bar { first, second }
+    }
+}
+
+impl Add<&M31Bar> for &QM31Bar {
+    type Output = QM31Bar;
+
+    fn add(self, rhs: &M31Bar) -> Self::Output {
         let second = self.second.copy().unwrap();
         let first = &self.first + rhs;
 
@@ -200,6 +211,7 @@ impl Mul for &QM31Bar {
     type Output = QM31Bar;
 
     fn mul(self, rhs: Self) -> Self::Output {
+        println!("Warning: multiplication without using a table");
         let res = self.value().unwrap() * rhs.value().unwrap();
         let cs = self.cs().and(&rhs.cs());
 
@@ -228,6 +240,12 @@ impl Neg for &QM31Bar {
 }
 
 impl QM31Bar {
+    pub fn is_zero(&self) {
+        assert_eq!(self.value().unwrap(), QM31::zero());
+        self.first.is_zero();
+        self.second.is_zero();
+    }
+
     pub fn is_one(&self) {
         assert_eq!(self.value().unwrap(), QM31::from_u32_unchecked(1, 0, 0, 0));
         self.first.is_one();

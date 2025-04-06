@@ -5,13 +5,14 @@ use crate::fields::qm31::QM31Bar;
 use crate::utils::{hash, hash_qm31_gadget};
 use anyhow::Result;
 use bitcoin::script::write_scriptint;
-use recursive_stwo_bitcoin_dsl::bar::{AllocBar, Bar};
+use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
 use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
 use recursive_stwo_bitcoin_dsl::basic::str::StrBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use recursive_stwo_bitcoin_dsl::options::Options;
 use recursive_stwo_bitcoin_dsl::stack::Stack;
 use recursive_stwo_bitcoin_dsl::treepp::*;
+use serde::{Deserialize, Serialize};
 use sha2::digest::Update;
 use sha2::{Digest, Sha256};
 use std::ops::Neg;
@@ -20,10 +21,57 @@ use stwo_prover::core::fields::qm31::QM31;
 use stwo_prover::core::vcs::bitcoin_num_to_bytes;
 use stwo_prover::core::vcs::sha256_hash::Sha256Hash;
 
+#[derive(Clone)]
 pub struct Sha256ChannelBar {
     pub digest: Sha256HashBar,
     pub n_challenges: usize,
     pub n_sent: usize,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Sha256ChannelValue {
+    pub digest: Sha256Hash,
+    pub n_challenges: usize,
+    pub n_sent: usize,
+}
+
+impl Bar for Sha256ChannelBar {
+    fn cs(&self) -> BitcoinSystemRef {
+        self.digest.cs()
+    }
+
+    fn variables(&self) -> Vec<usize> {
+        vec![self.digest.variable]
+    }
+
+    fn length() -> usize {
+        1
+    }
+}
+
+impl AllocBar for Sha256ChannelBar {
+    type Value = Sha256ChannelValue;
+
+    fn value(&self) -> Result<Self::Value> {
+        Ok(Sha256ChannelValue {
+            digest: self.digest.value,
+            n_challenges: self.n_challenges,
+            n_sent: self.n_sent,
+        })
+    }
+
+    fn new_variable(
+        cs: &BitcoinSystemRef,
+        data: Self::Value,
+        mode: AllocationMode,
+    ) -> Result<Self> {
+        let digest = Sha256HashBar::new_variable(cs, data.digest, mode)?;
+        Ok(Self {
+            digest,
+            n_challenges: data.n_challenges,
+            n_sent: data.n_sent,
+        })
+    }
 }
 
 impl ChannelBar for Sha256ChannelBar {

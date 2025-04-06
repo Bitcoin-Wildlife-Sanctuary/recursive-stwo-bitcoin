@@ -2,6 +2,7 @@ use crate::bar::{AllocBar, Bar};
 use crate::basic::sha256_hash::Sha256HashBar;
 use crate::bitcoin_system::BitcoinSystemRef;
 use anyhow::Result;
+use serde::de::DeserializeOwned;
 use sha2::Digest;
 use std::collections::HashMap;
 
@@ -66,6 +67,11 @@ impl LDM {
         self.log.push(idx);
 
         Ok(v)
+    }
+
+    pub fn debug_read<T: DeserializeOwned>(&mut self, name: impl ToString) -> Result<T> {
+        let idx = self.name_to_id[&name.to_string()];
+        Ok(bincode::deserialize(&self.value_map[idx])?)
     }
 
     pub fn save(&self) -> Result<()> {

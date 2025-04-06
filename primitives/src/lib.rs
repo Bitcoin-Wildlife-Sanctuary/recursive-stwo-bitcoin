@@ -2,11 +2,17 @@ pub mod channel;
 
 pub mod fields;
 
+pub mod circle;
+
 pub mod bits;
 
 pub mod pow;
 
 pub mod utils;
+
+pub mod input_sum;
+
+pub mod composition;
 
 #[cfg(test)]
 mod test {
