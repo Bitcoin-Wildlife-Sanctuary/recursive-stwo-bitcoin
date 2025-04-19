@@ -1,16 +1,16 @@
-use std::ops::Neg;
 use crate::circle::CirclePointQM31Bar;
 use crate::fields::qm31::QM31Bar;
 use crate::fields::table::TableBar;
 use anyhow::Result;
 use num_traits::Zero;
-use serde::{Deserialize, Serialize};
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
+use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
+use serde::{Deserialize, Serialize};
+use std::ops::Neg;
 use stwo_prover::core::circle::CirclePoint;
-use stwo_prover::core::fields::ComplexConjugate;
 use stwo_prover::core::fields::m31::M31;
 use stwo_prover::core::fields::qm31::QM31;
-use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
+use stwo_prover::core::fields::ComplexConjugate;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ColumnLineCoeff {
@@ -55,7 +55,11 @@ impl AllocBar for ColumnLineCoeffBar {
         })
     }
 
-    fn new_variable(cs: &BitcoinSystemRef, data: Self::Value, mode: AllocationMode) -> Result<Self> {
+    fn new_variable(
+        cs: &BitcoinSystemRef,
+        data: Self::Value,
+        mode: AllocationMode,
+    ) -> Result<Self> {
         let a = QM31Bar::new_variable(cs, data.a, mode)?;
         let b = QM31Bar::new_variable(cs, data.b, mode)?;
         let c = QM31Bar::new_variable(cs, data.c, mode)?;
@@ -90,18 +94,15 @@ pub fn complex_conjugate_line_coeffs_var(
     let c = y1;
 
     Ok(ColumnLineCoeffBar {
-       a: alpha * (table,
-        &a),
-       b: alpha * (table,
-        &b),
-       c: alpha * (table,
-        &c),
+        a: alpha * (table, &a),
+        b: alpha * (table, &b),
+        c: alpha * (table, &c),
     })
 }
 
 #[derive(Clone)]
 pub struct LineCoeffRandomizerBar {
-    pub alpha: QM31Bar
+    pub alpha: QM31Bar,
 }
 
 impl Bar for LineCoeffRandomizerBar {
@@ -125,23 +126,30 @@ impl AllocBar for LineCoeffRandomizerBar {
         self.alpha.value()
     }
 
-    fn new_variable(cs: &BitcoinSystemRef, data: Self::Value, mode: AllocationMode) -> Result<Self> {
+    fn new_variable(
+        cs: &BitcoinSystemRef,
+        data: Self::Value,
+        mode: AllocationMode,
+    ) -> Result<Self> {
         let alpha = QM31Bar::new_variable(cs, data, mode)?;
         Ok(Self { alpha })
     }
 }
 
 impl LineCoeffRandomizerBar {
-    pub fn new(cs: &BitcoinSystemRef) -> Result<Self> {
-        Ok(Self {
-            alpha: QM31Bar::new_constant(cs, QM31::from_m31(M31::zero(), M31::zero(), M31::from(2).neg(), M31::zero()))?
-        })
+    pub fn new(cs: &BitcoinSystemRef, after_sampled_values_random_coeff: &QM31Bar) -> Result<Self> {
+        let alpha = after_sampled_values_random_coeff
+            * &QM31Bar::new_constant(
+                &cs,
+                QM31::from_m31(M31::zero(), M31::zero(), M31::from(2).neg(), M31::zero()),
+            )?;
+        Ok(Self { alpha })
     }
-    
+
     pub fn get_and_update(
-        &mut self, 
+        &mut self,
         table: &TableBar,
-        after_sampled_values_random_coeff: &QM31Bar
+        after_sampled_values_random_coeff: &QM31Bar,
     ) -> QM31Bar {
         let res = self.alpha.clone();
         self.alpha = &self.alpha * (table, after_sampled_values_random_coeff);

@@ -1,27 +1,25 @@
 pub mod hints;
 pub mod twiddles;
 
-pub mod part1;
-pub mod part10;
-pub mod part11;
-pub mod part2;
-pub mod part3;
-pub mod part4;
-pub mod part5;
-pub mod part6;
-pub mod part7;
-pub mod part8;
-pub mod part9;
-pub mod part12;
-pub mod part13;
-pub mod part14;
+pub mod global;
+pub mod per_query;
 
 pub mod part_last;
 
 #[cfg(test)]
 mod test {
+    use crate::script::global::part12_line_coeffs::generate_oods_shifted_logsize_26_labels;
+    use crate::script::global::part13_line_coeffs::{
+        generate_oods_original_logsize_26_labels, generate_oods_original_logsize_28_labels,
+    };
+    use crate::script::global::{
+        part10_logup, part11_point_shift, part12_line_coeffs, part13_line_coeffs,
+        part14_line_coeffs, part1_fiat_shamir, part2_input_sum, part3_fiat_shamir,
+        part4_composition, part5_composition, part6_composition, part7_coset_vanishing,
+        part8_coset_vanishing, part9_coset_vanishing,
+    };
     use crate::script::hints::LastFiatShamirHints;
-    use crate::script::{part1, part10, part11, part12, part13, part2, part3, part4, part5, part6, part7, part8, part9, part_last};
+    use crate::script::part_last;
     use circle_plonk_dsl_hints::{AnswerHints, FiatShamirHints};
     use num_traits::{One, Zero};
     use recursive_stwo_bitcoin_dsl::ldm::LDM;
@@ -40,8 +38,6 @@ mod test {
     use stwo_prover::examples::plonk_without_poseidon::air::{
         verify_plonk_without_poseidon, PlonkWithoutPoseidonProof,
     };
-    use crate::script::part12::generate_oods_shifted_logsize_26_labels;
-    use crate::script::part13::generate_oods_original_logsize_26_labels;
 
     fn get_delegated_ldm(
         proof: &PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher>,
@@ -133,7 +129,7 @@ mod test {
 
         let mut script_total_len = 0;
 
-        let cs = part1::generate_cs(&proof_last, &mut ldm).unwrap();
+        let cs = part1_fiat_shamir::generate_cs(&proof_last, &mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -144,7 +140,7 @@ mod test {
 
         let input_labels = compute_input_labels();
         for counter in 0..39 {
-            let cs = part2::generate_cs(&mut ldm, counter, &input_labels).unwrap();
+            let cs = part2_input_sum::generate_cs(&mut ldm, counter, &input_labels).unwrap();
             script_total_len += test_program(
                 cs,
                 script! {
@@ -159,8 +155,13 @@ mod test {
             QM31::zero()
         );
 
-        let cs = part3::generate_cs(&last_fiat_shamir_hints, &proof_last, config_last, &mut ldm)
-            .unwrap();
+        let cs = part3_fiat_shamir::generate_cs(
+            &last_fiat_shamir_hints,
+            &proof_last,
+            config_last,
+            &mut ldm,
+        )
+        .unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -169,7 +170,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part4::generate_cs(&mut ldm).unwrap();
+        let cs = part4_composition::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -178,7 +179,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part5::generate_cs(&mut ldm).unwrap();
+        let cs = part5_composition::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -187,7 +188,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part6::generate_cs(&mut ldm).unwrap();
+        let cs = part6_composition::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -196,7 +197,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part7::generate_cs(&proof_last, &mut ldm).unwrap();
+        let cs = part7_coset_vanishing::generate_cs(&proof_last, &mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -205,7 +206,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part8::generate_cs(&mut ldm).unwrap();
+        let cs = part8_coset_vanishing::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -214,7 +215,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part9::generate_cs(&mut ldm).unwrap();
+        let cs = part9_coset_vanishing::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -223,7 +224,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part10::generate_cs(&mut ldm).unwrap();
+        let cs = part10_logup::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -232,7 +233,7 @@ mod test {
         )
         .unwrap();
 
-        let cs = part11::generate_cs(&proof_last, &mut ldm).unwrap();
+        let cs = part11_point_shift::generate_cs(&proof_last, &mut ldm).unwrap();
         script_total_len += test_program(
             cs,
             script! {
@@ -243,35 +244,54 @@ mod test {
 
         let oods_shifted_logsize_26_labels = generate_oods_shifted_logsize_26_labels();
         for counter in 0..2 {
-            let cs = part12::generate_cs(&mut ldm, counter, &oods_shifted_logsize_26_labels).unwrap();
+            let cs =
+                part12_line_coeffs::generate_cs(&mut ldm, counter, &oods_shifted_logsize_26_labels)
+                    .unwrap();
             script_total_len += test_program(
                 cs,
                 script! {
                     { ldm.hash_var.as_ref().unwrap().value.clone() }
                 },
             )
-                .unwrap();
+            .unwrap();
         }
 
         let oods_original_logsize_26_labels = generate_oods_original_logsize_26_labels();
         for counter in 0..12 {
-            let cs = part13::generate_cs(&mut ldm, counter, &oods_original_logsize_26_labels).unwrap();
+            let cs = part13_line_coeffs::generate_cs(
+                &mut ldm,
+                counter,
+                &oods_original_logsize_26_labels,
+            )
+            .unwrap();
             script_total_len += test_program(
                 cs,
                 script! {
                     { ldm.hash_var.as_ref().unwrap().value.clone() }
                 },
             )
-                .unwrap();
+            .unwrap();
+        }
+
+        let oods_original_logsize_28_labels = generate_oods_original_logsize_28_labels();
+        for counter in 0..2 {
+            let cs = part14_line_coeffs::generate_cs(
+                &mut ldm,
+                counter,
+                &oods_original_logsize_28_labels,
+            )
+            .unwrap();
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
         }
 
         let cs = part_last::generate_cs(&mut ldm).unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-            },
-        )
-            .unwrap();
+        script_total_len += test_program(cs, script! {}).unwrap();
 
         println!("current total script length: {}", script_total_len);
     }

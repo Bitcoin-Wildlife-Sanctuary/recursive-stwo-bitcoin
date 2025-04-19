@@ -22,6 +22,7 @@ circle-plonk-dsl-last-folding = { git = "https://github.com/Bitcoin-Wildlife-San
 circle-plonk-dsl-last-fiat-shamir = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
 circle-plonk-dsl-last-answer = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
 itertools = "0.14.0"
+rayon = "1.10.0"
 
 [profile.release]
 opt-level = 3

@@ -9,6 +9,8 @@ use stwo_prover::core::circle::CirclePoint;
 use stwo_prover::core::fields::m31::M31;
 use stwo_prover::core::fields::qm31::QM31;
 
+pub mod precomputed;
+
 #[derive(Clone, Debug)]
 pub struct CirclePointM31Bar {
     pub x: M31Bar,

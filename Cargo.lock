@@ -993,6 +993,7 @@ dependencies = [
  "num-traits",
  "rand",
  "rand_chacha",
+ "rayon",
  "recursive-stwo-bitcoin-dsl",
  "rust-bitcoin-m31",
  "serde",
