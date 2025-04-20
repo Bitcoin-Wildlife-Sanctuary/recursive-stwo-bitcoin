@@ -3,12 +3,14 @@ use crate::fields::table::TableBar;
 use crate::utils;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
+use recursive_stwo_bitcoin_dsl::basic::str::StrBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::{BitcoinSystemRef, Element};
 use recursive_stwo_bitcoin_dsl::options::Options;
 use recursive_stwo_bitcoin_dsl::stack::Stack;
 use recursive_stwo_bitcoin_dsl::treepp::*;
 use std::ops::{Add, Mul, Neg, Sub};
 use stwo_prover::core::fields::m31::M31;
+use stwo_prover::core::vcs::bitcoin_num_to_bytes;
 
 #[derive(Debug, Clone)]
 pub struct M31Bar {
@@ -185,6 +187,17 @@ impl M31Bar {
             .unwrap();
         M31Bar::new_function_output(&self.cs, M31::from_u32_unchecked(res)).unwrap()
     }
+
+    pub fn to_str(&self) -> Result<StrBar> {
+        let cs = self.cs();
+        let str = bitcoin_num_to_bytes(self.value);
+        self.cs.insert_script(dummy_script, vec![self.variable])?;
+        StrBar::new_function_output(&cs, str)
+    }
+}
+
+fn dummy_script() -> Script {
+    script! {}
 }
 
 fn m31_is_zero_gadget() -> Script {

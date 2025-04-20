@@ -1,10 +1,12 @@
 use crate::bar::{AllocBar, AllocationMode, Bar};
+use crate::basic::bool::BoolBar;
 use crate::bitcoin_system::{BitcoinSystemRef, Element};
 use crate::options::Options;
 use crate::stack::Stack;
 use crate::treepp::*;
 use anyhow::Result;
 use bitcoin::opcodes::all::OP_CAT;
+use sha2::{Digest, Sha256};
 use std::ops::Add;
 
 #[derive(Clone, Debug)]
@@ -99,6 +101,48 @@ impl StrBar {
             &Options::new().with_u32("len", (l + 1) as u32),
         )
         .unwrap();
+    }
+
+    pub fn hash(&self) -> Result<StrBar> {
+        let mut sha256 = Sha256::new();
+        Digest::update(&mut sha256, &self.value);
+        let hash_value = sha256.finalize().to_vec();
+
+        let cs = self.cs();
+        cs.insert_script(str_hash_gadget, self.variables())?;
+        StrBar::new_function_output(&cs, hash_value)
+    }
+
+    pub fn swap(lhs: &StrBar, rhs: &StrBar, bit: &BoolBar) -> Result<(StrBar, StrBar)> {
+        let lhs_value = lhs.value()?;
+        let rhs_value = rhs.value()?;
+
+        let cs = lhs.cs().and(&rhs.cs());
+        cs.insert_script(
+            str_swap_gadget,
+            vec![lhs.variable, rhs.variable, bit.variable],
+        )?;
+        if !bit.value {
+            Ok((
+                StrBar::new_function_output(&cs, lhs_value)?,
+                StrBar::new_function_output(&cs, rhs_value)?,
+            ))
+        } else {
+            Ok((
+                StrBar::new_function_output(&cs, rhs_value)?,
+                StrBar::new_function_output(&cs, lhs_value)?,
+            ))
+        }
+    }
+}
+
+fn str_hash_gadget() -> Script {
+    script! { OP_SHA256 }
+}
+
+fn str_swap_gadget() -> Script {
+    script! {
+        OP_IF OP_SWAP OP_ENDIF
     }
 }
 

@@ -22,4 +22,3 @@ rayon.workspace = true
 name = "precomputed_tree"
 test = false
 bench = false
-required-features = ["rayon"]
