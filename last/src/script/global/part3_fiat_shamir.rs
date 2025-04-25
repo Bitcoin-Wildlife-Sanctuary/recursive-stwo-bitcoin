@@ -1,10 +1,11 @@
-use crate::script::hints::LastFiatShamirHints;
+use crate::script::hints::fiat_shamir::LastFiatShamirHints;
 use anyhow::Result;
 use recursive_stwo_bitcoin_dsl::bar::AllocBar;
 use recursive_stwo_bitcoin_dsl::basic::sha256_hash::Sha256HashBar;
 use recursive_stwo_bitcoin_dsl::basic::str::StrBar;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use recursive_stwo_bitcoin_dsl::ldm::LDM;
+use recursive_stwo_primitives::bits::split_hi_lo;
 use recursive_stwo_primitives::channel::sha256::Sha256ChannelBar;
 use recursive_stwo_primitives::channel::ChannelBar;
 use recursive_stwo_primitives::composition::PointEvaluationAccumulatorBar;
@@ -41,6 +42,7 @@ pub fn generate_cs(
         &cs,
         proof.stark_proof.commitments[2].as_ref().to_vec().into(),
     )?;
+    ldm.write("interaction_commitment_var", &interaction_commitment_var)?;
     channel_var.mix_root(&interaction_commitment_var);
 
     let random_coeff = channel_var.draw_felt();
@@ -51,6 +53,7 @@ pub fn generate_cs(
         &cs,
         proof.stark_proof.commitments[3].as_ref().to_vec().into(),
     )?;
+    ldm.write("composition_commitment_var", &composition_commitment_var)?;
     channel_var.mix_root(&composition_commitment_var);
 
     // Draw OODS point.
@@ -250,8 +253,18 @@ pub fn generate_cs(
     let raw_queries_felt_1 = channel_var.draw_felt();
     let raw_queries_felt_2 = channel_var.draw_felt();
 
-    ldm.write("raw_queries_felt_1", &raw_queries_felt_1)?;
-    ldm.write("raw_queries_felt_2", &raw_queries_felt_2)?;
+    let mut raw_queries = raw_queries_felt_1.to_m31_array().to_vec();
+    raw_queries.extend(raw_queries_felt_2.to_m31_array());
+
+    let mut queries = vec![];
+    for raw_query in raw_queries.iter() {
+        let (hi, lo) = split_hi_lo(raw_query, 28)?;
+        hi.drop();
+        queries.push(lo);
+    }
+    for i in 0..8 {
+        ldm.write(format!("query_{}", i), &queries[i])?;
+    }
 
     let table = TableBar::new_constant(&cs, ())?;
 

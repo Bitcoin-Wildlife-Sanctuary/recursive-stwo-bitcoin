@@ -2,7 +2,7 @@ use itertools::Itertools;
 use num_traits::{One, Zero};
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::{Add, Mul, Neg};
-use stwo_prover::constraint_framework::{Relation, TraceLocationAllocator};
+use stwo_prover::constraint_framework::{Relation, TraceLocationAllocator, PREPROCESSED_TRACE_IDX};
 use stwo_prover::core::air::Component;
 use stwo_prover::core::channel::{Channel, MerkleChannel};
 use stwo_prover::core::circle::CirclePoint;
@@ -141,6 +141,12 @@ impl<MC: MerkleChannel> LastFiatShamirHints<MC> {
 
         // Get mask sample points relative to oods point.
         let mut sample_points = component.mask_points(oods_point);
+        let preprocessed_mask_points = &mut sample_points[PREPROCESSED_TRACE_IDX];
+        *preprocessed_mask_points = vec![vec![]; component.preproccessed_column_indices().len()];
+        for idx in component.preproccessed_column_indices() {
+            preprocessed_mask_points[*idx] = vec![oods_point];
+        }
+
         // Add the composition polynomial mask points.
         sample_points.push(vec![vec![oods_point]; SECURE_EXTENSION_DEGREE]);
 
@@ -284,7 +290,7 @@ impl<MC: MerkleChannel> LastFiatShamirHints<MC> {
 
 #[cfg(test)]
 mod test {
-    use crate::script::hints::LastFiatShamirHints;
+    use crate::script::hints::fiat_shamir::LastFiatShamirHints;
     use recursive_stwo_delegation::script::compute_delegation_inputs;
     use stwo_prover::core::fri::FriConfig;
     use stwo_prover::core::pcs::PcsConfig;
@@ -296,7 +302,7 @@ mod test {
     #[test]
     fn test_last_fiat_shamir_hints() {
         let proof: PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher> =
-            bincode::deserialize(include_bytes!("../../../data/hybrid_hash.bin")).unwrap();
+            bincode::deserialize(include_bytes!("../../../../data/hybrid_hash.bin")).unwrap();
         let config = PcsConfig {
             pow_bits: 28,
             fri_config: FriConfig::new(7, 9, 8),
@@ -305,7 +311,7 @@ mod test {
         let inputs = compute_delegation_inputs(&proof, config);
 
         let proof_last: PlonkWithoutPoseidonProof<Sha256MerkleHasher> =
-            bincode::deserialize(include_bytes!("../../../data/bitcoin_proof.bin")).unwrap();
+            bincode::deserialize(include_bytes!("../../../../data/bitcoin_proof.bin")).unwrap();
         let config_last = PcsConfig {
             pow_bits: 28,
             fri_config: FriConfig::new(0, 9, 8),

@@ -28,6 +28,7 @@ pub fn generate_cs(
         &cs,
         proof.stark_proof.commitments[0].as_ref().to_vec().into(),
     )?;
+    ldm.write("preprocessed_commitment_var", &preprocessed_commitment_var)?;
     channel_var.mix_root(&preprocessed_commitment_var);
 
     // Update the channel with the log sizes
@@ -40,6 +41,7 @@ pub fn generate_cs(
         &cs,
         proof.stark_proof.commitments[1].as_ref().to_vec().into(),
     )?;
+    ldm.write("trace_commitment_var", &trace_commitment_var)?;
     channel_var.mix_root(&trace_commitment_var);
 
     // Draw interaction elements (specifically, z and alpha)

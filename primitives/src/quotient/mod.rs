@@ -1,14 +1,12 @@
 use crate::circle::CirclePointQM31Bar;
+use crate::fields::m31::M31Bar;
 use crate::fields::qm31::QM31Bar;
 use crate::fields::table::TableBar;
 use anyhow::Result;
-use num_traits::Zero;
 use recursive_stwo_bitcoin_dsl::bar::{AllocBar, AllocationMode, Bar};
 use recursive_stwo_bitcoin_dsl::bitcoin_system::BitcoinSystemRef;
 use serde::{Deserialize, Serialize};
-use std::ops::Neg;
 use stwo_prover::core::circle::CirclePoint;
-use stwo_prover::core::fields::m31::M31;
 use stwo_prover::core::fields::qm31::QM31;
 use stwo_prover::core::fields::ComplexConjugate;
 
@@ -64,6 +62,14 @@ impl AllocBar for ColumnLineCoeffBar {
         let b = QM31Bar::new_variable(cs, data.b, mode)?;
         let c = QM31Bar::new_variable(cs, data.c, mode)?;
         Ok(Self { a, b, c })
+    }
+}
+
+impl ColumnLineCoeffBar {
+    pub fn apply(&self, table: &TableBar, y: &M31Bar, value: &M31Bar) -> QM31Bar {
+        let value = &self.c * (table, value);
+        let linear_term = &(&self.a * (table, y)) + &self.b;
+        &value - &linear_term
     }
 }
 
@@ -137,12 +143,10 @@ impl AllocBar for LineCoeffRandomizerBar {
 }
 
 impl LineCoeffRandomizerBar {
-    pub fn new(cs: &BitcoinSystemRef, after_sampled_values_random_coeff: &QM31Bar) -> Result<Self> {
-        let alpha = after_sampled_values_random_coeff
-            * &QM31Bar::new_constant(
-                &cs,
-                QM31::from_m31(M31::zero(), M31::zero(), M31::from(2).neg(), M31::zero()),
-            )?;
+    pub fn new(after_sampled_values_random_coeff: &QM31Bar) -> Result<Self> {
+        let mut alpha = after_sampled_values_random_coeff.shift_by_j();
+        alpha = &alpha + &alpha;
+        alpha = -&alpha;
         Ok(Self { alpha })
     }
 

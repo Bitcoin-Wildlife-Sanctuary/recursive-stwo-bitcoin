@@ -24,7 +24,7 @@ fn enforce_bit_range_gadget(_: &mut Stack, options: &Options) -> Result<Script> 
 
     Ok(script! {
         OP_DUP 0 OP_GREATERTHANOREQUAL OP_VERIFY
-        OP_DUP { max } OP_LESSTHANOREQUAL OP_VERIFY
+        { max } OP_LESSTHANOREQUAL OP_VERIFY
     })
 }
 

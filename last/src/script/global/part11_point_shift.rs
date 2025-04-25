@@ -55,15 +55,13 @@ pub fn generate_cs(
     let after_sampled_values_random_coeff: QM31Bar =
         ldm.read("after_sampled_values_random_coeff")?;
 
-    let line_coeff_randomizer_26 =
-        LineCoeffRandomizerBar::new(&cs, &after_sampled_values_random_coeff)?;
+    let line_coeff_randomizer_26 = LineCoeffRandomizerBar::new(&after_sampled_values_random_coeff)?;
     ldm.write(
         "line_coeff_randomizer_26_alpha_0",
         &line_coeff_randomizer_26.alpha,
     )?;
 
-    let line_coeff_randomizer_28 =
-        LineCoeffRandomizerBar::new(&cs, &after_sampled_values_random_coeff)?;
+    let line_coeff_randomizer_28 = LineCoeffRandomizerBar::new(&after_sampled_values_random_coeff)?;
     ldm.write(
         "line_coeff_randomizer_28_alpha_0",
         &line_coeff_randomizer_28.alpha,

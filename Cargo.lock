@@ -4,9 +4,9 @@ version = 4
 
 [[package]]
 name = "anyhow"
-version = "1.0.97"
+version = "1.0.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
+checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "ark-ff"
@@ -220,9 +220,9 @@ dependencies = [
 
 [[package]]
 name = "blake3"
-version = "1.8.0"
+version = "1.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34a796731680be7931955498a16a10b2270c7762963d5d570fdbfe02dcbf314f"
+checksum = "3888aaa89e4b2a40fca9848e400f6a658a5a3978de7be858e209cafa8be9a4a0"
 dependencies = [
  "arrayref",
  "arrayvec",
@@ -268,9 +268,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.17"
+version = "1.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fcb57c740ae1daf453ae85f16e37396f672b039e00d9d866e07ddb24e328e3a"
+checksum = "8e3a13707ac958681c13b39b458c073d0d9bc8a22cb1b2f4c8e55eb72c13f362"
 dependencies = [
  "shlex",
 ]
@@ -284,7 +284,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "circle-plonk-dsl-answer"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-circle",
@@ -303,7 +303,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-bits"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -314,7 +314,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-channel"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -325,7 +325,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-circle"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-bits",
  "circle-plonk-dsl-channel",
@@ -339,7 +339,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-constraint-system"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "num-traits",
  "serde",
@@ -349,7 +349,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-data-structures"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-bits",
  "circle-plonk-dsl-channel",
@@ -365,7 +365,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-fiat-shamir"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-bits",
@@ -382,7 +382,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-fields"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "num-traits",
@@ -393,7 +393,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-hints"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "itertools 0.14.0",
  "num-traits",
@@ -403,7 +403,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-answer"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-answer",
@@ -423,7 +423,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-data-structures"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-data-structures",
@@ -435,7 +435,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-fiat-shamir"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-channel",
@@ -454,7 +454,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-folding"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-constraint-system",
@@ -471,7 +471,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-line"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -484,7 +484,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-merkle"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -496,7 +496,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-poseidon31"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -507,7 +507,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-query"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#b58ae2fef0d601fcc8b8879849f2fba740bf5592"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
 dependencies = [
  "circle-plonk-dsl-bits",
  "circle-plonk-dsl-circle",
@@ -663,9 +663,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.15"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
+checksum = "335ff9f135e4384c8150d6f27c6daed433577f86b4750418338c01a1a2528592"
 dependencies = [
  "cfg-if",
  "js-sys",
@@ -712,9 +712,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.8.0"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3954d50fe15b02142bf25d3b8bdadb634ec3948f103d04ffe3031bc8fe9d7058"
+checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
 dependencies = [
  "equivalent",
  "hashbrown",
@@ -765,9 +765,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
-version = "0.2.171"
+version = "0.2.172"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
+checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
 name = "log"
@@ -856,9 +856,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.94"
+version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a31971752e70b8b2686d7e46ec17fb38dad4051d94024c88df49b667caea9c84"
+checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
 ]
