@@ -35,6 +35,13 @@ pub fn generate_cs(
     ldm_per_query.write("point_26_y", &precomputed_result.point_26.y)?;
     ldm_per_query.write("point_26_y_inv", &precomputed_result.point_26_y_inv)?;
 
+    //  236482303 1284792366
+    println!(
+        "for this query {} {}",
+        query.value()?.0 >> 1,
+        precomputed_result.twiddles[&27].value()?
+    );
+
     let oods_x: QM31Bar = ldm.read("oods_x")?;
     let oods_y: QM31Bar = ldm.read("oods_y")?;
 

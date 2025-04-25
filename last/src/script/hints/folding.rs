@@ -721,6 +721,10 @@ impl LastInnerLayersHints {
 
                 let point = domain.at(bit_reverse_index(left_idx, log_size));
                 let x_inv = point.x.inverse();
+                println!(
+                    "i = {}, left_idx = {}, log_size = {}, x_inv = {}",
+                    i, left_idx, log_size, x_inv
+                );
 
                 let new_left_v = left_v + right_v;
                 let new_right_v = (left_v - right_v) * x_inv;
