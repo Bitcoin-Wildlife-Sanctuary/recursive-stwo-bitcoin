@@ -24,88 +24,9 @@ impl PrecomputedTree {
     pub fn gen_subtrees(subtree_path: PathBuf) -> Result<()> {
         let mut file = BufWriter::new(std::fs::File::create(subtree_path)?);
 
-        let commitment_domain_big = CanonicCoset::new(28).circle_domain();
-        let commitment_domain_small = CanonicCoset::new(26).circle_domain();
-        let twiddle_domain_27 = Coset::half_odds(27);
-
         for i in 0..(1 << 18) {
-            let mut layer = (0..1 << 10)
-                .into_par_iter()
-                .map(|j| {
-                    let mut sha256 = Sha256::new();
-                    let index = (i << 10) + j;
-                    let domain_point = commitment_domain_big.at(bit_reverse_index(index, 28));
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.x));
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y));
-                    if index % 2 == 0 {
-                        Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y.inverse()));
-                    } else {
-                        Digest::update(
-                            &mut sha256,
-                            bitcoin_num_to_bytes(domain_point.y.neg().inverse()),
-                        );
-                    }
-
-                    let hash: [u8; 32] = sha256.finalize().into();
-                    hash
-                })
-                .collect::<Vec<_>>();
-
-            // layer 27
-            layer = (0..1 << 9)
-                .into_par_iter()
-                .map(|j| {
-                    let index = (i << 9) + j;
-                    let domain_point =
-                        twiddle_domain_27.at(bit_reverse_index((index >> 1) << 1, 27));
-
-                    let mut sha256 = Sha256::new();
-                    Digest::update(&mut sha256, &layer[j * 2]);
-                    Digest::update(&mut sha256, &layer[j * 2 + 1]);
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.x.inverse()));
-                    let hash: [u8; 32] = sha256.finalize().into();
-                    hash
-                })
-                .collect::<Vec<_>>();
-
-            layer = (0..1 << 8)
-                .into_par_iter()
-                .map(|j| {
-                    let mut sha256 = Sha256::new();
-                    let index = (i << 8) + j;
-                    let domain_point = commitment_domain_small.at(bit_reverse_index(index, 26));
-                    Digest::update(&mut sha256, &layer[j * 2]);
-                    Digest::update(&mut sha256, &layer[j * 2 + 1]);
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.x));
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y));
-                    if index % 2 == 0 {
-                        Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y.inverse()));
-                    } else {
-                        Digest::update(
-                            &mut sha256,
-                            bitcoin_num_to_bytes(domain_point.y.neg().inverse()),
-                        );
-                    }
-
-                    let hash: [u8; 32] = sha256.finalize().into();
-                    hash
-                })
-                .collect::<Vec<_>>();
-
-            for _ in 0..8 {
-                layer = layer
-                    .par_chunks_exact(2)
-                    .map(|c| {
-                        let mut sha256 = Sha256::new();
-                        Digest::update(&mut sha256, &c[0]);
-                        Digest::update(&mut sha256, &c[1]);
-                        let hash: [u8; 32] = sha256.finalize().into();
-                        hash
-                    })
-                    .collect::<Vec<_>>();
-            }
-            assert_eq!(layer.len(), 1);
-            file.write(&layer[0])?;
+            let tree = PrecomputedTree::build_subtree(i)?;
+            file.write(&tree.root())?;
         }
 
         file.flush()?;
@@ -119,6 +40,15 @@ impl PrecomputedTree {
         let commitment_domain_big = CanonicCoset::new(28).circle_domain();
         let commitment_domain_small = CanonicCoset::new(26).circle_domain();
         let twiddle_domain_27 = Coset::half_odds(27);
+        let twiddle_domain_26 = Coset::half_odds(26);
+
+        let twiddle_domain_25 = Coset::half_odds(25);
+        let twiddle_domain_24 = Coset::half_odds(24);
+        let twiddle_domain_23 = Coset::half_odds(23);
+        let twiddle_domain_22 = Coset::half_odds(22);
+        let twiddle_domain_21 = Coset::half_odds(21);
+        let twiddle_domain_20 = Coset::half_odds(20);
+        let twiddle_domain_19 = Coset::half_odds(19);
 
         let mut layer = (0..1 << 10)
             .into_par_iter()
@@ -128,15 +58,6 @@ impl PrecomputedTree {
                 let domain_point = commitment_domain_big.at(bit_reverse_index(index, 28));
                 Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.x));
                 Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y));
-                if index % 2 == 0 {
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y.inverse()));
-                } else {
-                    Digest::update(
-                        &mut sha256,
-                        bitcoin_num_to_bytes(domain_point.y.neg().inverse()),
-                    );
-                }
-
                 let hash: [u8; 32] = sha256.finalize().into();
                 hash
             })
@@ -148,12 +69,11 @@ impl PrecomputedTree {
             .into_par_iter()
             .map(|j| {
                 let index = (i << 9) + j;
-                let domain_point = twiddle_domain_27.at(bit_reverse_index((index >> 1) << 1, 27));
-
+                let domain_point = commitment_domain_big.at(bit_reverse_index(index << 1, 28));
                 let mut sha256 = Sha256::new();
                 Digest::update(&mut sha256, &layer[j * 2]);
                 Digest::update(&mut sha256, &layer[j * 2 + 1]);
-                Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.x.inverse()));
+                Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y.inverse()));
                 let hash: [u8; 32] = sha256.finalize().into();
                 hash
             })
@@ -166,32 +86,56 @@ impl PrecomputedTree {
                 let mut sha256 = Sha256::new();
                 let index = (i << 8) + j;
                 let domain_point = commitment_domain_small.at(bit_reverse_index(index, 26));
+                let twiddle_point = twiddle_domain_27.at(bit_reverse_index(index << 1, 27));
                 Digest::update(&mut sha256, &layer[j * 2]);
                 Digest::update(&mut sha256, &layer[j * 2 + 1]);
                 Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.x));
                 Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y));
-                if index % 2 == 0 {
-                    Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y.inverse()));
-                } else {
-                    Digest::update(
-                        &mut sha256,
-                        bitcoin_num_to_bytes(domain_point.y.neg().inverse()),
-                    );
-                }
-
+                Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddle_point.x.inverse()));
                 let hash: [u8; 32] = sha256.finalize().into();
                 hash
             })
             .collect::<Vec<_>>();
         layers.push(layer.clone());
 
-        for _ in 0..8 {
-            layer = layer
-                .par_chunks_exact(2)
-                .map(|c| {
+        layer = (0..1 << 7)
+            .into_par_iter()
+            .map(|j| {
+                let mut sha256 = Sha256::new();
+                let index = (i << 7) + j;
+                let domain_point = commitment_domain_small.at(bit_reverse_index(index << 1, 26));
+                let twiddle_point = twiddle_domain_26.at(bit_reverse_index(index << 1, 26));
+                Digest::update(&mut sha256, &layer[j * 2]);
+                Digest::update(&mut sha256, &layer[j * 2 + 1]);
+                Digest::update(&mut sha256, bitcoin_num_to_bytes(domain_point.y.inverse()));
+                Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddle_point.x.inverse()));
+                let hash: [u8; 32] = sha256.finalize().into();
+                hash
+            })
+            .collect::<Vec<_>>();
+        layers.push(layer.clone());
+
+        for (k, domain) in [
+            &twiddle_domain_25,
+            &twiddle_domain_24,
+            &twiddle_domain_23,
+            &twiddle_domain_22,
+            &twiddle_domain_21,
+            &twiddle_domain_20,
+            &twiddle_domain_19,
+        ]
+        .iter()
+        .enumerate()
+        {
+            layer = (0..1 << (6 - k))
+                .into_par_iter()
+                .map(|j| {
                     let mut sha256 = Sha256::new();
-                    Digest::update(&mut sha256, &c[0]);
-                    Digest::update(&mut sha256, &c[1]);
+                    let index = (i << (6 - k)) + j;
+                    let twiddle_point = domain.at(bit_reverse_index(index << 1, (25 - k) as u32));
+                    Digest::update(&mut sha256, &layer[j * 2]);
+                    Digest::update(&mut sha256, &layer[j * 2 + 1]);
+                    Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddle_point.x.inverse()));
                     let hash: [u8; 32] = sha256.finalize().into();
                     hash
                 })
@@ -266,11 +210,11 @@ impl Tree {
         let mut sha256 = Sha256::new();
         Digest::update(&mut sha256, bitcoin_num_to_bytes(point1.x));
         Digest::update(&mut sha256, bitcoin_num_to_bytes(point1.y));
-        if cur_index % 2 == 0 {
-            Digest::update(&mut sha256, bitcoin_num_to_bytes(point1.y.inverse()));
+        let point1_y_inv = if cur_index % 2 == 0 {
+            point1.y.inverse()
         } else {
-            Digest::update(&mut sha256, bitcoin_num_to_bytes(point1.y.neg().inverse()));
-        }
+            point1.y.neg().inverse()
+        };
         let mut hash: [u8; 32] = sha256.finalize().into();
 
         // compute layer 27
@@ -282,7 +226,7 @@ impl Tree {
             Digest::update(&mut sha256, &path.siblings[0]);
             Digest::update(&mut sha256, &hash);
         }
-        Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddles[&27]));
+        Digest::update(&mut sha256, bitcoin_num_to_bytes(point1_y_inv));
         cur_index = cur_index >> 1;
         hash = sha256.finalize().into();
 
@@ -298,22 +242,41 @@ impl Tree {
         cur_index = cur_index >> 1;
         Digest::update(&mut sha256, bitcoin_num_to_bytes(point2.x));
         Digest::update(&mut sha256, bitcoin_num_to_bytes(point2.y));
-        if cur_index % 2 == 0 {
-            Digest::update(&mut sha256, bitcoin_num_to_bytes(point2.y.inverse()));
+        Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddles[&27]));
+        let point2_y_inv = if cur_index % 2 == 0 {
+            point2.y.inverse()
         } else {
-            Digest::update(&mut sha256, bitcoin_num_to_bytes(point2.y.neg().inverse()));
-        }
+            point2.y.neg().inverse()
+        };
         hash = sha256.finalize().into();
 
-        for i in 0..8 {
+        // compute layer 25
+        let mut sha256 = Sha256::new();
+        if cur_index % 2 == 0 {
+            Digest::update(&mut sha256, &hash);
+            Digest::update(&mut sha256, &path.siblings[2]);
+        } else {
+            Digest::update(&mut sha256, &path.siblings[2]);
+            Digest::update(&mut sha256, &hash);
+        }
+        cur_index = cur_index >> 1;
+        Digest::update(&mut sha256, bitcoin_num_to_bytes(point2_y_inv));
+        Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddles[&26]));
+        hash = sha256.finalize().into();
+
+        for i in 0..7 {
             let mut sha256 = Sha256::new();
             if cur_index % 2 == 0 {
                 Digest::update(&mut sha256, &hash);
-                Digest::update(&mut sha256, &path.siblings[i + 2]);
+                Digest::update(&mut sha256, &path.siblings[i + 3]);
             } else {
-                Digest::update(&mut sha256, &path.siblings[i + 2]);
+                Digest::update(&mut sha256, &path.siblings[i + 3]);
                 Digest::update(&mut sha256, &hash);
             }
+            Digest::update(
+                &mut sha256,
+                bitcoin_num_to_bytes(twiddles[&(25 - i as u32)]),
+            );
             cur_index = cur_index >> 1;
             hash = sha256.finalize().into();
         }
@@ -369,6 +332,15 @@ impl PrecomputedTreeResultVar {
         let commitment_domain_big = CanonicCoset::new(28).circle_domain();
         let commitment_domain_small = CanonicCoset::new(26).circle_domain();
         let twiddle_domain_27 = Coset::half_odds(27);
+        let twiddle_domain_26 = Coset::half_odds(26);
+
+        let twiddle_domain_25 = Coset::half_odds(25);
+        let twiddle_domain_24 = Coset::half_odds(24);
+        let twiddle_domain_23 = Coset::half_odds(23);
+        let twiddle_domain_22 = Coset::half_odds(22);
+        let twiddle_domain_21 = Coset::half_odds(21);
+        let twiddle_domain_20 = Coset::half_odds(20);
+        let twiddle_domain_19 = Coset::half_odds(19);
 
         let index_value = index.value()?.0 as usize;
 
@@ -376,10 +348,29 @@ impl PrecomputedTreeResultVar {
 
         let point_28_value = commitment_domain_big.at(bit_reverse_index(index_value, 28));
         let point_26_value = commitment_domain_small.at(bit_reverse_index(index_value >> 2, 26));
+
         let twiddle_27_point = twiddle_domain_27.at(bit_reverse_index((index_value >> 2) << 1, 27));
+        let twiddle_26_point = twiddle_domain_26.at(bit_reverse_index((index_value >> 3) << 1, 26));
+
+        let twiddle_25_point = twiddle_domain_25.at(bit_reverse_index((index_value >> 4) << 1, 25));
+        let twiddle_24_point = twiddle_domain_24.at(bit_reverse_index((index_value >> 5) << 1, 24));
+        let twiddle_23_point = twiddle_domain_23.at(bit_reverse_index((index_value >> 6) << 1, 23));
+        let twiddle_22_point = twiddle_domain_22.at(bit_reverse_index((index_value >> 7) << 1, 22));
+        let twiddle_21_point = twiddle_domain_21.at(bit_reverse_index((index_value >> 8) << 1, 21));
+        let twiddle_20_point = twiddle_domain_20.at(bit_reverse_index((index_value >> 9) << 1, 20));
+        let twiddle_19_point =
+            twiddle_domain_19.at(bit_reverse_index((index_value >> 10) << 1, 19));
 
         let mut twiddles_values = BTreeMap::new();
         twiddles_values.insert(27, twiddle_27_point.x.inverse());
+        twiddles_values.insert(26, twiddle_26_point.x.inverse());
+        twiddles_values.insert(25, twiddle_25_point.x.inverse());
+        twiddles_values.insert(24, twiddle_24_point.x.inverse());
+        twiddles_values.insert(23, twiddle_23_point.x.inverse());
+        twiddles_values.insert(22, twiddle_22_point.x.inverse());
+        twiddles_values.insert(21, twiddle_21_point.x.inverse());
+        twiddles_values.insert(20, twiddle_20_point.x.inverse());
+        twiddles_values.insert(19, twiddle_19_point.x.inverse());
 
         let point_28_y_inv_value = if index_value % 2 == 0 {
             point_28_value.y.inverse()
@@ -401,7 +392,7 @@ impl PrecomputedTreeResultVar {
 
         let mut twiddles = BTreeMap::new();
         for (i, v) in twiddles_values.iter() {
-            twiddles.insert(*i as u32, M31Bar::new_hint(&cs, v.clone())?);
+            twiddles.insert(*i, M31Bar::new_hint(&cs, v.clone())?);
         }
 
         let subtree = PrecomputedTree::build_subtree(index_value >> 10).unwrap();
@@ -415,8 +406,7 @@ impl PrecomputedTreeResultVar {
         )
         .is_ok());
 
-        let mut cur =
-            &(&point_28.x.to_str()? + &point_28.y.to_str()?) + &point_28_y_inv.to_str()?;
+        let mut cur = &point_28.x.to_str()? + &point_28.y.to_str()?;
         cur = cur.hash()?;
 
         let bits = split_be_bits(&index, 28)?;
@@ -426,7 +416,8 @@ impl PrecomputedTreeResultVar {
             &StrBar::new_hint(&cs, subtree_path.siblings[0].to_vec())?,
             &bits[0],
         )?;
-        cur = &(&lhs + &rhs) + &twiddles[&27].to_str()?;
+        cur = &(&lhs + &rhs) + &point_28_y_inv.to_str()?;
+
         cur = cur.hash()?;
 
         let (lhs, rhs) = StrBar::swap(
@@ -437,16 +428,27 @@ impl PrecomputedTreeResultVar {
         cur = &lhs + &rhs;
         cur = &cur + &point_26.x.to_str()?;
         cur = &cur + &point_26.y.to_str()?;
-        cur = &cur + &point_26_y_inv.to_str()?;
+        cur = &cur + &twiddles[&27].to_str()?;
         cur = cur.hash()?;
 
-        for i in 0..8 {
+        let (lhs, rhs) = StrBar::swap(
+            &cur,
+            &StrBar::new_hint(&cs, subtree_path.siblings[2].to_vec())?,
+            &bits[2],
+        )?;
+        cur = &lhs + &rhs;
+        cur = &cur + &point_26_y_inv.to_str()?;
+        cur = &cur + &twiddles[&26].to_str()?;
+        cur = cur.hash()?;
+
+        for i in 0..7 {
             let (lhs, rhs) = StrBar::swap(
                 &cur,
-                &StrBar::new_hint(&cs, subtree_path.siblings[i + 2].to_vec())?,
-                &bits[i + 2],
+                &StrBar::new_hint(&cs, subtree_path.siblings[i + 3].to_vec())?,
+                &bits[i + 3],
             )?;
             cur = &lhs + &rhs;
+            cur = &cur + &twiddles[&((25 - i) as u32)].to_str()?;
             cur = cur.hash()?;
         }
 
@@ -507,13 +509,39 @@ mod test {
             let commitment_domain_big = CanonicCoset::new(28).circle_domain();
             let commitment_domain_small = CanonicCoset::new(26).circle_domain();
             let twiddle_domain_27 = Coset::half_odds(27);
+            let twiddle_domain_26 = Coset::half_odds(26);
+            let twiddle_domain_25 = Coset::half_odds(25);
+            let twiddle_domain_24 = Coset::half_odds(24);
+            let twiddle_domain_23 = Coset::half_odds(23);
+            let twiddle_domain_22 = Coset::half_odds(22);
+            let twiddle_domain_21 = Coset::half_odds(21);
+            let twiddle_domain_20 = Coset::half_odds(20);
+            let twiddle_domain_19 = Coset::half_odds(19);
 
             let point1 = commitment_domain_big.at(bit_reverse_index(index, 28));
             let point2 = commitment_domain_small.at(bit_reverse_index(index >> 2, 26));
-            let twiddle_27_point = twiddle_domain_27.at(bit_reverse_index(index >> 1, 27));
+
+            let twiddle_27_point = twiddle_domain_27.at(bit_reverse_index((index >> 2) << 1, 27));
+            let twiddle_26_point = twiddle_domain_26.at(bit_reverse_index((index >> 3) << 1, 26));
+
+            let twiddle_25_point = twiddle_domain_25.at(bit_reverse_index((index >> 4) << 1, 25));
+            let twiddle_24_point = twiddle_domain_24.at(bit_reverse_index((index >> 5) << 1, 24));
+            let twiddle_23_point = twiddle_domain_23.at(bit_reverse_index((index >> 6) << 1, 23));
+            let twiddle_22_point = twiddle_domain_22.at(bit_reverse_index((index >> 7) << 1, 22));
+            let twiddle_21_point = twiddle_domain_21.at(bit_reverse_index((index >> 8) << 1, 21));
+            let twiddle_20_point = twiddle_domain_20.at(bit_reverse_index((index >> 9) << 1, 20));
+            let twiddle_19_point = twiddle_domain_19.at(bit_reverse_index((index >> 10) << 1, 19));
 
             let mut twiddles_values = BTreeMap::new();
             twiddles_values.insert(27, twiddle_27_point.x.inverse());
+            twiddles_values.insert(26, twiddle_26_point.x.inverse());
+            twiddles_values.insert(25, twiddle_25_point.x.inverse());
+            twiddles_values.insert(24, twiddle_24_point.x.inverse());
+            twiddles_values.insert(23, twiddle_23_point.x.inverse());
+            twiddles_values.insert(22, twiddle_22_point.x.inverse());
+            twiddles_values.insert(21, twiddle_21_point.x.inverse());
+            twiddles_values.insert(20, twiddle_20_point.x.inverse());
+            twiddles_values.insert(19, twiddle_19_point.x.inverse());
 
             Tree::subtree_verify(&subtree.root(), &path, &point1, &point2, &twiddles_values)
                 .unwrap();

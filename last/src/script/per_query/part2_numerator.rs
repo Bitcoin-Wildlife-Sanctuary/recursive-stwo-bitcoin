@@ -38,14 +38,19 @@ pub fn generate_cs(
 
     let table = TableBar::new_constant(&cs, ())?;
     let point_28_y: M31Bar = ldm_per_query.read("point_28_y")?;
+    let composition_2_val: M31Bar = ldm_per_query.read("composition_2_val")?;
     let composition_3_val: M31Bar = ldm_per_query.read("composition_3_val")?;
 
+    let column_line_coeff_composition_2: ColumnLineCoeffBar =
+        ldm.read("column_line_coeff_composition_2")?;
+    let numerator_2 =
+        column_line_coeff_composition_2.apply(&table, &point_28_y, &composition_2_val);
     let column_line_coeff_composition_3: ColumnLineCoeffBar =
         ldm.read("column_line_coeff_composition_3")?;
     let numerator_3 =
         column_line_coeff_composition_3.apply(&table, &point_28_y, &composition_3_val);
-    let numerator_012: QM31Bar = ldm_per_query.read("numerator_composition_012")?;
-    let numerator_composition = &numerator_012 + &numerator_3;
+    let numerator_01: QM31Bar = ldm_per_query.read("numerator_composition_01")?;
+    let numerator_composition = &(&numerator_01 + &numerator_2) + &numerator_3;
     let denominator_oods_28: CM31Bar = ldm_per_query.read("denominator_oods_28")?;
     let row_28 = &numerator_composition * (&table, &denominator_oods_28);
     ldm_per_query.write("row_28", &row_28)?;
@@ -77,23 +82,15 @@ pub fn generate_cs(
         &preprocessed_decommitment.columns[2],
     );
 
-    let column_line_coeff_preprocessed_op1: ColumnLineCoeffBar =
-        ldm.read("column_line_coeff_preprocessed_op1")?;
-    let numerator_op1 = column_line_coeff_preprocessed_op1.apply(
-        &table,
-        &point_26_y,
-        &preprocessed_decommitment.columns[3],
-    );
-
-    let mut numerator_a_wire_to_op1 = &numerator_a_wire + &numerator_b_wire;
-    numerator_a_wire_to_op1 = &numerator_a_wire_to_op1 + &numerator_c_wire;
-    numerator_a_wire_to_op1 = &numerator_a_wire_to_op1 + &numerator_op1;
+    let mut numerator_a_wire_to_c_wire = &numerator_a_wire + &numerator_b_wire;
+    numerator_a_wire_to_c_wire = &numerator_a_wire_to_c_wire + &numerator_c_wire;
 
     ldm_per_query.write(
-        "numerator_preprocessed_a_wire_to_op1",
-        &numerator_a_wire_to_op1,
+        "numerator_preprocessed_a_wire_to_c_wire",
+        &numerator_a_wire_to_c_wire,
     )?;
 
+    ldm_per_query.write("preprocessed_op1", &preprocessed_decommitment.columns[3])?;
     ldm_per_query.write("preprocessed_op2", &preprocessed_decommitment.columns[4])?;
     ldm_per_query.write("preprocessed_op3", &preprocessed_decommitment.columns[5])?;
     ldm_per_query.write("preprocessed_op4", &preprocessed_decommitment.columns[6])?;

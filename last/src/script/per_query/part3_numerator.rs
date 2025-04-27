@@ -44,6 +44,12 @@ pub fn generate_cs(
     let table = TableBar::new_constant(&cs, ())?;
     let point_26_y: M31Bar = ldm_per_query.read("point_26_y")?;
 
+    let preprocessed_op1: M31Bar = ldm_per_query.read("preprocessed_op1")?;
+    let column_line_coeff_preprocessed_op1: ColumnLineCoeffBar =
+        ldm.read("column_line_coeff_preprocessed_op1")?;
+    let numerator_op1 =
+        column_line_coeff_preprocessed_op1.apply(&table, &point_26_y, &preprocessed_op1);
+
     let preprocessed_op2: M31Bar = ldm_per_query.read("preprocessed_op2")?;
     let column_line_coeff_preprocessed_op2: ColumnLineCoeffBar =
         ldm.read("column_line_coeff_preprocessed_op2")?;
@@ -68,9 +74,10 @@ pub fn generate_cs(
     let numerator_mult_c =
         column_line_coeff_preprocessed_mult_c.apply(&table, &point_26_y, &preprocessed_mult_c);
 
-    let numerator_a_wire_to_op1: QM31Bar =
-        ldm_per_query.read("numerator_preprocessed_a_wire_to_op1")?;
-    let mut numerator_preprocessed = &numerator_a_wire_to_op1 + &numerator_op2;
+    let numerator_a_wire_to_c_wire: QM31Bar =
+        ldm_per_query.read("numerator_preprocessed_a_wire_to_c_wire")?;
+    let mut numerator_preprocessed = &numerator_a_wire_to_c_wire + &numerator_op1;
+    numerator_preprocessed = &numerator_preprocessed + &numerator_op2;
     numerator_preprocessed = &numerator_preprocessed + &numerator_op3;
     numerator_preprocessed = &numerator_preprocessed + &numerator_op4;
     numerator_preprocessed = &numerator_preprocessed + &numerator_mult_c;

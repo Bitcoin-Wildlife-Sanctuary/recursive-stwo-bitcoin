@@ -98,17 +98,10 @@ pub fn generate_cs(
         &precomputed_result.point_28.y,
         &composition_decommitment.columns[1],
     );
-    let column_line_coeff_composition_2: ColumnLineCoeffBar =
-        ldm.read("column_line_coeff_composition_2")?;
-    let numerator_2 = column_line_coeff_composition_2.apply(
-        &table,
-        &precomputed_result.point_28.y,
-        &composition_decommitment.columns[2],
-    );
 
-    let mut numerator_012 = &numerator_0 + &numerator_1;
-    numerator_012 = &numerator_012 + &numerator_2;
-    ldm_per_query.write("numerator_composition_012", &numerator_012)?;
+    let numerator_01 = &numerator_0 + &numerator_1;
+    ldm_per_query.write("numerator_composition_01", &numerator_01)?;
+    ldm_per_query.write("composition_2_val", &composition_decommitment.columns[2])?;
     ldm_per_query.write("composition_3_val", &composition_decommitment.columns[3])?;
 
     ldm.save()?;
