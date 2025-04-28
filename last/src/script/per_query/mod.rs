@@ -1,3 +1,7 @@
+pub mod part10_folding;
+pub mod part11_folding;
+pub mod part12_folding;
+pub mod part13_clear;
 pub mod part1_domain_point;
 pub mod part2_numerator;
 pub mod part3_numerator;
@@ -6,3 +10,4 @@ pub mod part5_numerator;
 pub mod part6_numerator;
 pub mod part7_numerator;
 pub mod part8_fri_decommitment;
+pub mod part9_folding;

@@ -159,6 +159,23 @@ impl PrecomputedTree {
         }
         layers.push(layer.clone());
 
+        for k in 0..9 {
+            let twiddle_domain = Coset::half_odds(18 - k);
+            layer = (0..1 << (17 - k))
+                .into_par_iter()
+                .map(|j| {
+                    let mut sha256 = Sha256::new();
+                    let twiddle_point = twiddle_domain.at(bit_reverse_index(j << 1, 18 - k));
+                    Digest::update(&mut sha256, &layer[j * 2]);
+                    Digest::update(&mut sha256, &layer[j * 2 + 1]);
+                    Digest::update(&mut sha256, bitcoin_num_to_bytes(twiddle_point.x.inverse()));
+                    let hash: [u8; 32] = sha256.finalize().into();
+                    hash
+                })
+                .collect::<Vec<_>>();
+            layers.push(layer.clone());
+        }
+
         while layer.len() != 1 {
             layer = layer
                 .par_chunks_exact(2)
@@ -291,10 +308,11 @@ impl Tree {
         root: &[u8; 32],
         path: &TreePath,
         subtree_root: &[u8; 32],
+        twiddles: &BTreeMap<u32, M31>,
     ) -> Result<()> {
         let mut cur_index = path.index;
         let mut hash = subtree_root.clone();
-        for sibling in path.siblings.iter() {
+        for (i, sibling) in path.siblings.iter().enumerate() {
             let mut sha256 = Sha256::new();
             if cur_index % 2 == 0 {
                 Digest::update(&mut sha256, &hash);
@@ -302,6 +320,12 @@ impl Tree {
             } else {
                 Digest::update(&mut sha256, &sibling);
                 Digest::update(&mut sha256, &hash);
+            }
+            if i < 9 {
+                Digest::update(
+                    &mut sha256,
+                    bitcoin_num_to_bytes(twiddles[&(18 - i as u32)]),
+                );
             }
             cur_index = cur_index >> 1;
             hash = sha256.finalize().into();
@@ -331,46 +355,20 @@ impl PrecomputedTreeResultVar {
     pub fn fetch_and_verify(upper_tree: &Tree, index: &M31Bar) -> Result<PrecomputedTreeResultVar> {
         let commitment_domain_big = CanonicCoset::new(28).circle_domain();
         let commitment_domain_small = CanonicCoset::new(26).circle_domain();
-        let twiddle_domain_27 = Coset::half_odds(27);
-        let twiddle_domain_26 = Coset::half_odds(26);
-
-        let twiddle_domain_25 = Coset::half_odds(25);
-        let twiddle_domain_24 = Coset::half_odds(24);
-        let twiddle_domain_23 = Coset::half_odds(23);
-        let twiddle_domain_22 = Coset::half_odds(22);
-        let twiddle_domain_21 = Coset::half_odds(21);
-        let twiddle_domain_20 = Coset::half_odds(20);
-        let twiddle_domain_19 = Coset::half_odds(19);
 
         let index_value = index.value()?.0 as usize;
+        let mut twiddles_values = BTreeMap::new();
+        for i in 10..28 {
+            let twiddle_domain = Coset::half_odds(i);
+            let twiddle_point =
+                twiddle_domain.at(bit_reverse_index((index_value >> (28 - i + 1)) << 1, i));
+            twiddles_values.insert(i, twiddle_point.x.inverse());
+        }
 
         let cs = index.cs();
 
         let point_28_value = commitment_domain_big.at(bit_reverse_index(index_value, 28));
         let point_26_value = commitment_domain_small.at(bit_reverse_index(index_value >> 2, 26));
-
-        let twiddle_27_point = twiddle_domain_27.at(bit_reverse_index((index_value >> 2) << 1, 27));
-        let twiddle_26_point = twiddle_domain_26.at(bit_reverse_index((index_value >> 3) << 1, 26));
-
-        let twiddle_25_point = twiddle_domain_25.at(bit_reverse_index((index_value >> 4) << 1, 25));
-        let twiddle_24_point = twiddle_domain_24.at(bit_reverse_index((index_value >> 5) << 1, 24));
-        let twiddle_23_point = twiddle_domain_23.at(bit_reverse_index((index_value >> 6) << 1, 23));
-        let twiddle_22_point = twiddle_domain_22.at(bit_reverse_index((index_value >> 7) << 1, 22));
-        let twiddle_21_point = twiddle_domain_21.at(bit_reverse_index((index_value >> 8) << 1, 21));
-        let twiddle_20_point = twiddle_domain_20.at(bit_reverse_index((index_value >> 9) << 1, 20));
-        let twiddle_19_point =
-            twiddle_domain_19.at(bit_reverse_index((index_value >> 10) << 1, 19));
-
-        let mut twiddles_values = BTreeMap::new();
-        twiddles_values.insert(27, twiddle_27_point.x.inverse());
-        twiddles_values.insert(26, twiddle_26_point.x.inverse());
-        twiddles_values.insert(25, twiddle_25_point.x.inverse());
-        twiddles_values.insert(24, twiddle_24_point.x.inverse());
-        twiddles_values.insert(23, twiddle_23_point.x.inverse());
-        twiddles_values.insert(22, twiddle_22_point.x.inverse());
-        twiddles_values.insert(21, twiddle_21_point.x.inverse());
-        twiddles_values.insert(20, twiddle_20_point.x.inverse());
-        twiddles_values.insert(19, twiddle_19_point.x.inverse());
 
         let point_28_y_inv_value = if index_value % 2 == 0 {
             point_28_value.y.inverse()
@@ -464,6 +462,9 @@ impl PrecomputedTreeResultVar {
                 &bits[10 + i],
             )?;
             cur = &lhs + &rhs;
+            if i < 9 {
+                cur = &cur + &twiddles[&((18 - i) as u32)].to_str()?;
+            }
             cur = cur.hash()?;
         }
 
@@ -562,8 +563,40 @@ mod test {
             let subtree = PrecomputedTree::build_subtree(index >> 10).unwrap();
             assert_eq!(subtree.root(), upper_tree.layers[0][index >> 10]);
 
+            let twiddle_domain_18 = Coset::half_odds(18);
+            let twiddle_domain_17 = Coset::half_odds(17);
+            let twiddle_domain_16 = Coset::half_odds(16);
+            let twiddle_domain_15 = Coset::half_odds(15);
+            let twiddle_domain_14 = Coset::half_odds(14);
+            let twiddle_domain_13 = Coset::half_odds(13);
+            let twiddle_domain_12 = Coset::half_odds(12);
+            let twiddle_domain_11 = Coset::half_odds(11);
+            let twiddle_domain_10 = Coset::half_odds(10);
+
+            let twiddle_18_point = twiddle_domain_18.at(bit_reverse_index((index >> 11) << 1, 18));
+            let twiddle_17_point = twiddle_domain_17.at(bit_reverse_index((index >> 12) << 1, 17));
+            let twiddle_16_point = twiddle_domain_16.at(bit_reverse_index((index >> 13) << 1, 16));
+            let twiddle_15_point = twiddle_domain_15.at(bit_reverse_index((index >> 14) << 1, 15));
+            let twiddle_14_point = twiddle_domain_14.at(bit_reverse_index((index >> 15) << 1, 14));
+            let twiddle_13_point = twiddle_domain_13.at(bit_reverse_index((index >> 16) << 1, 13));
+            let twiddle_12_point = twiddle_domain_12.at(bit_reverse_index((index >> 17) << 1, 12));
+            let twiddle_11_point = twiddle_domain_11.at(bit_reverse_index((index >> 18) << 1, 11));
+            let twiddle_10_point = twiddle_domain_10.at(bit_reverse_index((index >> 19) << 1, 10));
+
+            let mut twiddles_values = BTreeMap::new();
+            twiddles_values.insert(18, twiddle_18_point.x.inverse());
+            twiddles_values.insert(17, twiddle_17_point.x.inverse());
+            twiddles_values.insert(16, twiddle_16_point.x.inverse());
+            twiddles_values.insert(15, twiddle_15_point.x.inverse());
+            twiddles_values.insert(14, twiddle_14_point.x.inverse());
+            twiddles_values.insert(13, twiddle_13_point.x.inverse());
+            twiddles_values.insert(12, twiddle_12_point.x.inverse());
+            twiddles_values.insert(11, twiddle_11_point.x.inverse());
+            twiddles_values.insert(10, twiddle_10_point.x.inverse());
+
             let path = upper_tree.path(index >> 10);
-            Tree::upper_tree_verify(&upper_tree.root(), &path, &subtree.root()).unwrap();
+            Tree::upper_tree_verify(&upper_tree.root(), &path, &subtree.root(), &twiddles_values)
+                .unwrap();
         }
     }
 

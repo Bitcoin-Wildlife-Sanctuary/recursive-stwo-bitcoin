@@ -53,8 +53,6 @@ pub fn generate_cs(ldm: &mut LDM, ldm_per_query: &mut LDM) -> Result<BitcoinSyst
     let row_26 = &row_interaction_prev + &row_preprocessed_to_interaction;
     ldm_per_query.write("row_26", &row_26)?;
 
-    println!("{:?}", row_26.value()?);
-
     ldm.save()?;
     ldm_per_query.save()?;
     Ok(cs)

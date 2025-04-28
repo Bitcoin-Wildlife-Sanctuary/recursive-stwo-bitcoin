@@ -250,8 +250,7 @@ pub fn generate_cs(
     verify_pow(&channel_var, config.pow_bits as usize)?;
 
     assert_eq!(config.fri_config.n_queries, 8);
-    let raw_queries_felt_1 = channel_var.draw_felt();
-    let raw_queries_felt_2 = channel_var.draw_felt();
+    let [raw_queries_felt_1, raw_queries_felt_2] = channel_var.draw_felts();
 
     let mut raw_queries = raw_queries_felt_1.to_m31_array().to_vec();
     raw_queries.extend(raw_queries_felt_2.to_m31_array());

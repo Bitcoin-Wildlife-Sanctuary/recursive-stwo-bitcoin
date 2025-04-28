@@ -54,7 +54,6 @@ pub fn generate_cs(
     let denominator_oods_28: CM31Bar = ldm_per_query.read("denominator_oods_28")?;
     let row_28 = &numerator_composition * (&table, &denominator_oods_28);
     ldm_per_query.write("row_28", &row_28)?;
-    println!("{:?}", row_28.value()?);
 
     let point_26_y: M31Bar = ldm_per_query.read("point_26_y")?;
 

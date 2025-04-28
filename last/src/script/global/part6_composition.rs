@@ -46,12 +46,6 @@ pub fn generate_cs(ldm: &mut LDM) -> Result<BitcoinSystemRef> {
     eval_acc.accumulate(&table, &sum);
     ldm.write("eval_acc_accumulation_part6", &eval_acc.accumulation)?;
 
-    let first_layer_alpha: QM31Bar = ldm.read("first_layer_alpha")?;
-    ldm.write(
-        "first_layer_alpha_squared",
-        &(&first_layer_alpha * (&table, &first_layer_alpha)),
-    )?;
-
     let inner_layer_alpha_1: QM31Bar = ldm.read("inner_layer_alpha_1")?;
     ldm.write(
         "inner_layer_alpha_1_squared",

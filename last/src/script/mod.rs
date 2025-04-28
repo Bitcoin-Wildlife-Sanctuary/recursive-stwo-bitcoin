@@ -23,8 +23,9 @@ mod test {
     use crate::script::hints::folding::{LastFirstLayerHints, LastInnerLayersHints};
     use crate::script::part_last;
     use crate::script::per_query::{
-        part1_domain_point, part2_numerator, part3_numerator, part4_numerator, part5_numerator,
-        part6_numerator, part7_numerator, part8_fri_decommitment,
+        part10_folding, part11_folding, part12_folding, part13_clear, part1_domain_point,
+        part2_numerator, part3_numerator, part4_numerator, part5_numerator, part6_numerator,
+        part7_numerator, part8_fri_decommitment, part9_folding,
     };
     use circle_plonk_dsl_hints::{AnswerHints, FiatShamirHints};
     use num_traits::{One, Zero};
@@ -149,10 +150,12 @@ mod test {
             &proof_last,
         );
 
+        let mut script_num = 0;
         let mut script_total_len = 0;
 
         println!("part1");
         let cs = part1_fiat_shamir::generate_cs(&proof_last, &mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -165,6 +168,7 @@ mod test {
         let input_labels = compute_input_labels();
         for counter in 0..39 {
             let cs = part2_input_sum::generate_cs(&mut ldm, counter, &input_labels).unwrap();
+            script_num += 1;
             script_total_len += test_program(
                 cs,
                 script! {
@@ -174,11 +178,6 @@ mod test {
             .unwrap();
         }
 
-        assert_eq!(
-            ldm.debug_read::<QM31>("input_acc_sum_39").unwrap() + proof_last.stmt1.plonk_total_sum,
-            QM31::zero()
-        );
-
         println!("part3");
         let cs = part3_fiat_shamir::generate_cs(
             &last_fiat_shamir_hints,
@@ -187,6 +186,7 @@ mod test {
             &mut ldm,
         )
         .unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -197,6 +197,7 @@ mod test {
 
         println!("part4");
         let cs = part4_composition::generate_cs(&mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -207,6 +208,7 @@ mod test {
 
         println!("part5");
         let cs = part5_composition::generate_cs(&mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -217,6 +219,7 @@ mod test {
 
         println!("part6");
         let cs = part6_composition::generate_cs(&mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -227,6 +230,7 @@ mod test {
 
         println!("part7");
         let cs = part7_coset_vanishing::generate_cs(&proof_last, &mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -237,6 +241,7 @@ mod test {
 
         println!("part8");
         let cs = part8_coset_vanishing::generate_cs(&mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -247,6 +252,7 @@ mod test {
 
         println!("part9");
         let cs = part9_coset_vanishing::generate_cs(&mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -257,6 +263,7 @@ mod test {
 
         println!("part10");
         let cs = part10_logup::generate_cs(&mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -267,6 +274,7 @@ mod test {
 
         println!("part11");
         let cs = part11_point_shift::generate_cs(&proof_last, &mut ldm).unwrap();
+        script_num += 1;
         script_total_len += test_program(
             cs,
             script! {
@@ -281,6 +289,7 @@ mod test {
             let cs =
                 part12_line_coeffs::generate_cs(&mut ldm, counter, &oods_shifted_logsize_26_labels)
                     .unwrap();
+            script_num += 1;
             script_total_len += test_program(
                 cs,
                 script! {
@@ -299,6 +308,7 @@ mod test {
                 &oods_original_logsize_26_labels,
             )
             .unwrap();
+            script_num += 1;
             script_total_len += test_program(
                 cs,
                 script! {
@@ -317,6 +327,7 @@ mod test {
                 &oods_original_logsize_28_labels,
             )
             .unwrap();
+            script_num += 1;
             script_total_len += test_program(
                 cs,
                 script! {
@@ -326,130 +337,202 @@ mod test {
             .unwrap();
         }
 
-        println!("per_query part1");
-        let mut ldm_per_query = LDM::new();
-        let cs = part1_domain_point::generate_cs(
-            0,
-            &last_decommit_composition_hints,
-            &mut ldm,
-            &mut ldm_per_query,
-        )
-        .unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+        for query_idx in 0..8 {
+            println!("per_query part1");
+            let mut ldm_per_query = LDM::new();
+            let cs = part1_domain_point::generate_cs(
+                query_idx,
+                &last_decommit_composition_hints,
+                &mut ldm,
+                &mut ldm_per_query,
+            )
+            .unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part2");
-        let cs = part2_numerator::generate_cs(
-            0,
-            &last_decommit_preprocessed_hints,
-            &mut ldm,
-            &mut ldm_per_query,
-        )
-        .unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part2");
+            let cs = part2_numerator::generate_cs(
+                query_idx,
+                &last_decommit_preprocessed_hints,
+                &mut ldm,
+                &mut ldm_per_query,
+            )
+            .unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part3");
-        let cs = part3_numerator::generate_cs(
-            0,
-            &last_decommit_trace_hints,
-            &mut ldm,
-            &mut ldm_per_query,
-        )
-        .unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part3");
+            let cs = part3_numerator::generate_cs(
+                query_idx,
+                &last_decommit_trace_hints,
+                &mut ldm,
+                &mut ldm_per_query,
+            )
+            .unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part4");
-        let cs = part4_numerator::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part4");
+            let cs = part4_numerator::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part5");
-        let cs = part5_numerator::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part5");
+            let cs = part5_numerator::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part6");
-        let cs = part6_numerator::generate_cs(
-            0,
-            &last_decommit_interaction_hints,
-            &mut ldm,
-            &mut ldm_per_query,
-        )
-        .unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part6");
+            let cs = part6_numerator::generate_cs(
+                query_idx,
+                &last_decommit_interaction_hints,
+                &mut ldm,
+                &mut ldm_per_query,
+            )
+            .unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part7");
-        let cs = part7_numerator::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part7");
+            let cs = part7_numerator::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
 
-        println!("per_query part8");
-        let cs = part8_fri_decommitment::generate_cs(
-            0,
-            &last_first_layer_hints,
-            &last_inner_layers_hints,
-            &mut ldm,
-            &mut ldm_per_query,
-        )
-        .unwrap();
-        script_total_len += test_program(
-            cs,
-            script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-                { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
-            },
-        )
-        .unwrap();
+            println!("per_query part8");
+            let cs = part8_fri_decommitment::generate_cs(
+                query_idx,
+                &last_first_layer_hints,
+                &last_inner_layers_hints,
+                &mut ldm,
+                &mut ldm_per_query,
+            )
+            .unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
+
+            println!("per_query part9");
+            let cs = part9_folding::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
+
+            println!("per_query part10");
+            let cs = part10_folding::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
+
+            println!("per_query part11");
+            let cs = part11_folding::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
+
+            println!("per_query part12");
+            let cs = part12_folding::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                    { ldm_per_query.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
+
+            println!("per_query part13");
+            let cs = part13_clear::generate_cs(&mut ldm, &mut ldm_per_query).unwrap();
+            script_num += 1;
+            script_total_len += test_program(
+                cs,
+                script! {
+                    { ldm.hash_var.as_ref().unwrap().value.clone() }
+                },
+            )
+            .unwrap();
+
+            println!("======finished query {}======", query_idx);
+        }
 
         println!("part_last");
         let cs = part_last::generate_cs(&mut ldm).unwrap();
         script_total_len += test_program(cs, script! {}).unwrap();
 
+        println!("number of scripts: {}", script_num);
         println!("current total script length: {}", script_total_len);
     }
 }

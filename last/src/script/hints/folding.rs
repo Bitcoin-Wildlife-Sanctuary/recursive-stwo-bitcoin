@@ -524,6 +524,8 @@ impl LastFirstLayerHints {
 
         let mut folded_evals_by_column = BTreeMap::new();
 
+        println!("===========");
+
         for (&column_domain, column_query_evals) in zip_eq(
             &fiat_shamir_hints
                 .fri_verifier
@@ -721,10 +723,6 @@ impl LastInnerLayersHints {
 
                 let point = domain.at(bit_reverse_index(left_idx, log_size));
                 let x_inv = point.x.inverse();
-                println!(
-                    "i = {}, left_idx = {}, log_size = {}, x_inv = {}",
-                    i, left_idx, log_size, x_inv
-                );
 
                 let new_left_v = left_v + right_v;
                 let new_right_v = (left_v - right_v) * x_inv;
