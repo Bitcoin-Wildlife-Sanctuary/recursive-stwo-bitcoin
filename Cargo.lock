@@ -942,6 +942,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "recursive-stwo-covenant"
+version = "0.1.0"
+dependencies = [
+ "bitcoin",
+ "recursive-stwo-bitcoin-dsl",
+]
+
+[[package]]
 name = "recursive-stwo-delegation"
 version = "0.1.0"
 dependencies = [
@@ -969,9 +977,6 @@ dependencies = [
  "bincode",
  "bitcoin",
  "circle-plonk-dsl-hints",
- "circle-plonk-dsl-last-answer",
- "circle-plonk-dsl-last-fiat-shamir",
- "circle-plonk-dsl-last-folding",
  "itertools 0.14.0",
  "num-traits",
  "recursive-stwo-bitcoin-dsl",

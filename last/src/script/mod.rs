@@ -28,7 +28,7 @@ mod test {
         part7_numerator, part8_fri_decommitment, part9_folding,
     };
     use circle_plonk_dsl_hints::{AnswerHints, FiatShamirHints};
-    use num_traits::{One, Zero};
+    use num_traits::One;
     use recursive_stwo_bitcoin_dsl::ldm::LDM;
     use recursive_stwo_bitcoin_dsl::test_program;
     use recursive_stwo_bitcoin_dsl::treepp::*;
@@ -69,39 +69,81 @@ mod test {
         );
 
         let mut ldm_delegated = LDM::new();
+        let mut script_total_len = 0;
 
-        let _ = recursive_stwo_delegation::script::part1::generate_cs(
+        let cs = recursive_stwo_delegation::script::part1::generate_cs(
             &fiat_shamir_hints,
             &proof,
             config,
             &mut ldm_delegated,
         )
         .unwrap();
-        let _ = recursive_stwo_delegation::script::part2::generate_cs(
+        script_total_len += test_program(
+            cs,
+            script! {
+                { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+            .unwrap();
+
+        let cs = recursive_stwo_delegation::script::part2::generate_cs(
             &fiat_shamir_hints,
             &proof,
             &first_layer_hints,
             &mut ldm_delegated,
         )
         .unwrap();
-        let _ = recursive_stwo_delegation::script::part3::generate_cs(
+        script_total_len += test_program(
+            cs,
+            script! {
+                { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+            .unwrap();
+
+        let cs = recursive_stwo_delegation::script::part3::generate_cs(
             &fiat_shamir_hints,
             &inner_layers_hints,
             &mut ldm_delegated,
         )
         .unwrap();
-        let _ = recursive_stwo_delegation::script::part4::generate_cs(
+        script_total_len += test_program(
+            cs,
+            script! {
+                { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+            .unwrap();
+
+        let cs = recursive_stwo_delegation::script::part4::generate_cs(
             &fiat_shamir_hints,
             &inner_layers_hints,
             &mut ldm_delegated,
         )
         .unwrap();
-        let _ = recursive_stwo_delegation::script::part5::generate_cs(
+        script_total_len += test_program(
+            cs,
+            script! {
+                { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+            .unwrap();
+
+        let cs = recursive_stwo_delegation::script::part5::generate_cs(
             &fiat_shamir_hints,
             &inner_layers_hints,
             &mut ldm_delegated,
         )
         .unwrap();
+        script_total_len += test_program(
+            cs,
+            script! {
+                { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+            .unwrap();
+
+        println!("delegated script total length: {}", script_total_len);
 
         ldm_delegated
     }

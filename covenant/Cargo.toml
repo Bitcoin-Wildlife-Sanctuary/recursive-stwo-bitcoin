@@ -1,0 +1,8 @@
+[package]
+name = "recursive-stwo-covenant"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+recursive-stwo-bitcoin-dsl = { path = "../bitcoin_dsl" }
+bitcoin.workspace = true
