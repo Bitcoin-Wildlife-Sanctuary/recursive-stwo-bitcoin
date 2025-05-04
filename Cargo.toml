@@ -23,6 +23,8 @@ circle-plonk-dsl-last-fiat-shamir = { git = "https://github.com/Bitcoin-Wildlife
 circle-plonk-dsl-last-answer = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
 itertools = "0.14.0"
 rayon = "1.10.0"
+covenants-gadgets = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/covenants-gadgets", tag = "1.1.1" }
+bitcoin-simulator = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/bitcoin-simulator", tag = "1.1.0" }
 
 [profile.release]
 opt-level = 3

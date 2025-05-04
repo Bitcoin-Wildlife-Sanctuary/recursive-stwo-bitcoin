@@ -3,6 +3,18 @@
 version = 4
 
 [[package]]
+name = "ahash"
+version = "0.8.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e89da841a80418a9b391ebaea17f5c112ffaaa96f621d2c285b5174da76b9011"
+dependencies = [
+ "cfg-if",
+ "once_cell",
+ "version_check",
+ "zerocopy 0.7.35",
+]
+
+[[package]]
 name = "anyhow"
 version = "1.0.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -183,11 +195,33 @@ dependencies = [
 [[package]]
 name = "bitcoin-scriptexec"
 version = "0.0.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/?tag=1.0.0#fe203d2ae6c80e7f5a2dde5f852d9a98c4baa296"
+dependencies = [
+ "anyhow",
+ "bitcoin",
+ "lazy_static",
+]
+
+[[package]]
+name = "bitcoin-scriptexec"
+version = "0.0.0"
 source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/#fac1401b68baa2e3cb48b126ec1a691d28707567"
 dependencies = [
  "anyhow",
  "bitcoin",
  "lazy_static",
+]
+
+[[package]]
+name = "bitcoin-simulator"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/bitcoin-simulator?tag=1.1.0#16b73cfa3fb21b55b37dee93ebd7fc34ba33cbe7"
+dependencies = [
+ "anyhow",
+ "bitcoin",
+ "bitcoin-script 0.2.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-script?tag=1.0.0)",
+ "bitcoin-scriptexec 0.0.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/?tag=1.0.0)",
+ "rusqlite",
 ]
 
 [[package]]
@@ -208,6 +242,12 @@ dependencies = [
  "bitcoin-io",
  "hex-conservative",
 ]
+
+[[package]]
+name = "bitflags"
+version = "2.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c8214115b7bf84099f1309324e63141d4c5d7cc26862f97a0a857dbefe165bd"
 
 [[package]]
 name = "blake2"
@@ -248,9 +288,9 @@ checksum = "1628fb46dfa0b37568d12e5edd512553eccf6a22a78e8bde00bb4aed84d5bdbf"
 
 [[package]]
 name = "bytemuck"
-version = "1.22.0"
+version = "1.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6b1fc10dbac614ebc03540c9dbd60e83887fda27794998c6528f1782047d540"
+checksum = "9134a6ef01ce4b366b50689c94f82c14bc72bc5d0386829828a2e2752ef7958c"
 dependencies = [
  "bytemuck_derive",
 ]
@@ -263,14 +303,14 @@ checksum = "7ecc273b49b3205b83d648f0690daa588925572cc5063745bfe547fe7ec8e1a1"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
 name = "cc"
-version = "1.2.19"
+version = "1.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e3a13707ac958681c13b39b458c073d0d9bc8a22cb1b2f4c8e55eb72c13f362"
+checksum = "8691782945451c1c383942c4874dbe63814f61cb57ef773cda2972682b7bb3c0"
 dependencies = [
  "shlex",
 ]
@@ -284,7 +324,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "circle-plonk-dsl-answer"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-circle",
@@ -303,7 +343,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-bits"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -314,7 +354,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-channel"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -325,7 +365,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-circle"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-bits",
  "circle-plonk-dsl-channel",
@@ -339,7 +379,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-constraint-system"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "num-traits",
  "serde",
@@ -349,7 +389,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-data-structures"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-bits",
  "circle-plonk-dsl-channel",
@@ -365,7 +405,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-fiat-shamir"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-bits",
@@ -382,7 +422,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-fields"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "num-traits",
@@ -393,7 +433,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-hints"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "itertools 0.14.0",
  "num-traits",
@@ -403,7 +443,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-answer"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-answer",
@@ -423,7 +463,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-data-structures"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-data-structures",
@@ -435,7 +475,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-fiat-shamir"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-channel",
@@ -454,7 +494,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-last-folding"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "bincode",
  "circle-plonk-dsl-constraint-system",
@@ -471,7 +511,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-line"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -484,7 +524,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-merkle"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -496,7 +536,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-poseidon31"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-constraint-system",
  "circle-plonk-dsl-fields",
@@ -507,7 +547,7 @@ dependencies = [
 [[package]]
 name = "circle-plonk-dsl-query"
 version = "0.1.0"
-source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#30e9b0a7c5e76281ab64b565609f723119d089a0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo#caea77fe70b0d313c90250c13e893cec22ad8bb0"
 dependencies = [
  "circle-plonk-dsl-bits",
  "circle-plonk-dsl-circle",
@@ -523,6 +563,23 @@ name = "constant_time_eq"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
+
+[[package]]
+name = "covenants-gadgets"
+version = "0.1.0"
+source = "git+https://github.com/Bitcoin-Wildlife-Sanctuary/covenants-gadgets?tag=1.1.1#93e057f2abdac14760b6a8ff82ee4a613a263153"
+dependencies = [
+ "anyhow",
+ "bitcoin",
+ "bitcoin-script 0.2.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-script?tag=1.0.0)",
+ "bitcoin-scriptexec 0.0.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/?tag=1.0.0)",
+ "bitcoin-simulator",
+ "hex",
+ "once_cell",
+ "rand",
+ "rand_chacha",
+ "sha2",
+]
 
 [[package]]
 name = "cpufeatures"
@@ -610,7 +667,7 @@ dependencies = [
  "enum-ordinalize",
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -636,7 +693,7 @@ checksum = "0d28318a75d4aead5c4db25382e8ef717932d0346600cacae6357eb5941bc5ff"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -644,6 +701,18 @@ name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
+
+[[package]]
+name = "fallible-iterator"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2acce4a10f12dc2fb14a218589d4f1f62ef011b2d0cc4b3cb1bba8e94da14649"
+
+[[package]]
+name = "fallible-streaming-iterator"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 
 [[package]]
 name = "fenwick-tree"
@@ -676,9 +745,27 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.15.2"
+version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
+checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+dependencies = [
+ "ahash",
+]
+
+[[package]]
+name = "hashbrown"
+version = "0.15.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84b26c544d002229e640969970a2e74021aadf6e2f96372b9c58eff97de08eb3"
+
+[[package]]
+name = "hashlink"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ba4ff7128dee98c7dc9794b6a411377e1404dba1c97deb8d1a55297bd25d8af"
+dependencies = [
+ "hashbrown 0.14.5",
+]
 
 [[package]]
 name = "hex"
@@ -717,7 +804,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
 dependencies = [
  "equivalent",
- "hashbrown",
+ "hashbrown 0.15.3",
 ]
 
 [[package]]
@@ -768,6 +855,17 @@ name = "libc"
 version = "0.2.172"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
+
+[[package]]
+name = "libsqlite3-sys"
+version = "0.30.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e99fb7a497b1e3339bc746195567ed8d3e24945ecd636e3619d20b9de9e9149"
+dependencies = [
+ "cc",
+ "pkg-config",
+ "vcpkg",
+]
 
 [[package]]
 name = "log"
@@ -822,12 +920,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3b3cff922bd51709b605d9ead9aa71031d81447142d828eb4a6eba76fe619f9b"
 
 [[package]]
+name = "pkg-config"
+version = "0.3.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c"
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85eae3c4ed2f50dcfe72643da4befc30deadb458a9b590d720cde2f2b1e97da9"
 dependencies = [
- "zerocopy",
+ "zerocopy 0.8.25",
 ]
 
 [[package]]
@@ -930,7 +1034,7 @@ dependencies = [
  "bincode",
  "bitcoin",
  "bitcoin-script 0.2.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-script)",
- "bitcoin-scriptexec",
+ "bitcoin-scriptexec 0.0.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/)",
  "fenwick-tree",
  "indexmap",
  "num-traits",
@@ -945,8 +1049,22 @@ dependencies = [
 name = "recursive-stwo-covenant"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "bincode",
  "bitcoin",
+ "bitcoin-scriptexec 0.0.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/)",
+ "bitcoin-simulator",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-last-answer",
+ "circle-plonk-dsl-last-fiat-shamir",
+ "circle-plonk-dsl-last-folding",
+ "covenants-gadgets",
+ "num-traits",
  "recursive-stwo-bitcoin-dsl",
+ "recursive-stwo-delegation",
+ "recursive-stwo-last",
+ "sha2",
+ "stwo-prover",
 ]
 
 [[package]]
@@ -993,7 +1111,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bitcoin",
- "bitcoin-scriptexec",
+ "bitcoin-scriptexec 0.0.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/)",
  "itertools 0.14.0",
  "num-traits",
  "rand",
@@ -1014,6 +1132,20 @@ checksum = "f8dd2a808d456c4a54e300a23e9f5a67e122c3024119acbfd73e3bf664491cb2"
 dependencies = [
  "hmac",
  "subtle",
+]
+
+[[package]]
+name = "rusqlite"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7753b721174eb8ff87a9a0e799e2d7bc3749323e773db92e0984debb00019d6e"
+dependencies = [
+ "bitflags",
+ "fallible-iterator",
+ "fallible-streaming-iterator",
+ "hashlink",
+ "libsqlite3-sys",
+ "smallvec",
 ]
 
 [[package]]
@@ -1041,6 +1173,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9465315bc9d4566e1724f0fffcbcc446268cb522e60f9a27bcded6b19c108113"
 dependencies = [
  "bitcoin_hashes",
+ "rand",
  "secp256k1-sys",
 ]
 
@@ -1076,14 +1209,14 @@ checksum = "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
 name = "sha2"
-version = "0.10.8"
+version = "0.10.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "793db75ad2bcafc3ffa7c68b215fee268f537982cd901d132f89c6343f3a3dc8"
+checksum = "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283"
 dependencies = [
  "cfg-if",
  "cpufeatures",
@@ -1095,6 +1228,12 @@ name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+
+[[package]]
+name = "smallvec"
+version = "1.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
 
 [[package]]
 name = "starknet-crypto"
@@ -1124,7 +1263,7 @@ checksum = "bbc159a1934c7be9761c237333a57febe060ace2bc9e3b337a59a37af206d19f"
 dependencies = [
  "starknet-curve",
  "starknet-ff",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -1193,9 +1332,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.100"
+version = "2.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b09a44accad81e1ba1cd74a32461ba89dee89095ba17b32f5d03683b1b1fc2a0"
+checksum = "8ce2b7fc941b3a24138a0a7cf8e858bfc6a992e7978a068a5c760deb0ed43caf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1219,7 +1358,7 @@ checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -1241,7 +1380,7 @@ checksum = "395ae124c09f9e6918a2310af6038fba074bcf474ac352496d5910dd59a2226d"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -1264,6 +1403,12 @@ name = "unicode-ident"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
+
+[[package]]
+name = "vcpkg"
+version = "0.2.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
 name = "version_check"
@@ -1298,7 +1443,7 @@ dependencies = [
  "log",
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
  "wasm-bindgen-shared",
 ]
 
@@ -1320,7 +1465,7 @@ checksum = "8ae87ea40c9f689fc23f209965b6fb8a99ad69aeeb0231408be24920604395de"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -1336,22 +1481,42 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.24"
+version = "0.7.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2586fea28e186957ef732a5f8b3be2da217d65c5969d4b1e17f973ebbe876879"
+checksum = "1b9b4fd18abc82b8136838da5d50bae7bdea537c574d8dc1a34ed098d6c166f0"
 dependencies = [
- "zerocopy-derive",
+ "zerocopy-derive 0.7.35",
+]
+
+[[package]]
+name = "zerocopy"
+version = "0.8.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1702d9583232ddb9174e01bb7c15a2ab8fb1bc6f227aa1233858c351a3ba0cb"
+dependencies = [
+ "zerocopy-derive 0.8.25",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.24"
+version = "0.7.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a996a8f63c5c4448cd959ac1bab0aaa3306ccfd060472f85943ee0750f0169be"
+checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "zerocopy-derive"
+version = "0.8.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28a6e20d751156648aa063f3800b706ee209a32c0b4d9f24be3d980b01be55ef"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.101",
 ]
 
 [[package]]
@@ -1371,5 +1536,5 @@ checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.100",
+ "syn 2.0.101",
 ]

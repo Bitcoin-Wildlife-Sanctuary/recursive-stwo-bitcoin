@@ -5,4 +5,18 @@ edition = "2021"
 
 [dependencies]
 recursive-stwo-bitcoin-dsl = { path = "../bitcoin_dsl" }
+recursive-stwo-delegation = { path = "../delegation" }
+recursive-stwo-last = { path = "../last" }
+stwo-prover.workspace = true
 bitcoin.workspace = true
+bitcoin-scriptexec.workspace = true
+num-traits.workspace = true
+circle-plonk-dsl-hints.workspace = true
+circle-plonk-dsl-last-folding.workspace = true
+circle-plonk-dsl-last-fiat-shamir.workspace = true
+circle-plonk-dsl-last-answer.workspace = true
+bincode.workspace = true
+covenants-gadgets.workspace = true
+sha2.workspace = true
+anyhow.workspace = true
+bitcoin-simulator.workspace = true

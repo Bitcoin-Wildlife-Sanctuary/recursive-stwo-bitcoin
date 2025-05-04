@@ -84,7 +84,7 @@ mod test {
                 { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
             },
         )
-            .unwrap();
+        .unwrap();
 
         let cs = recursive_stwo_delegation::script::part2::generate_cs(
             &fiat_shamir_hints,
@@ -99,7 +99,7 @@ mod test {
                 { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
             },
         )
-            .unwrap();
+        .unwrap();
 
         let cs = recursive_stwo_delegation::script::part3::generate_cs(
             &fiat_shamir_hints,
@@ -113,7 +113,7 @@ mod test {
                 { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
             },
         )
-            .unwrap();
+        .unwrap();
 
         let cs = recursive_stwo_delegation::script::part4::generate_cs(
             &fiat_shamir_hints,
@@ -127,7 +127,7 @@ mod test {
                 { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
             },
         )
-            .unwrap();
+        .unwrap();
 
         let cs = recursive_stwo_delegation::script::part5::generate_cs(
             &fiat_shamir_hints,
@@ -141,7 +141,7 @@ mod test {
                 { ldm_delegated.hash_var.as_ref().unwrap().value.clone() }
             },
         )
-            .unwrap();
+        .unwrap();
 
         println!("delegated script total length: {}", script_total_len);
 
@@ -572,7 +572,13 @@ mod test {
 
         println!("part_last");
         let cs = part_last::generate_cs(&mut ldm).unwrap();
-        script_total_len += test_program(cs, script! {}).unwrap();
+        script_total_len += test_program(
+            cs,
+            script! {
+                { ldm.hash_var.as_ref().unwrap().value.clone() }
+            },
+        )
+        .unwrap();
 
         println!("number of scripts: {}", script_num);
         println!("current total script length: {}", script_total_len);
