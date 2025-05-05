@@ -1,4 +1,3 @@
-use anyhow::Error;
 use bitcoin::consensus::Encodable;
 use bitcoin::hashes::{sha256d, Hash};
 use bitcoin::opcodes::all::{OP_PUSHBYTES_36, OP_RETURN};
@@ -137,9 +136,12 @@ fn main() {
         println!();
         println!("Call this tool again with the funding txid and initial program id");
         println!(
-            "> cargo run -- -f {} -i {}",
+            "> cargo run --bin demo -- -f {} -i {} --funding_tx_vout {}",
             "[funding txid]".on_bright_green().black(),
-            "[initial program txid]".on_bright_green().black()
+            "[initial program txid]".on_bright_green().black(),
+            "[0 if first output, 1 if second output]"
+                .on_bright_green()
+                .black()
         );
         println!("================================================");
     } else {
@@ -277,7 +279,7 @@ fn main() {
 
             // Write the transaction to a file
             let mut fs =
-                std::fs::File::create(format!("{}/tx-{}.txt", output_dir.to_str().unwrap(), i + 1))
+                std::fs::File::create(format!("{}/{}.txt", output_dir.to_str().unwrap(), i + 1))
                     .unwrap();
             fs.write_all(hex::encode(bytes).as_bytes()).unwrap();
         }
