@@ -20,3 +20,18 @@ covenants-gadgets.workspace = true
 sha2.workspace = true
 anyhow.workspace = true
 bitcoin-simulator.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+hex.workspace = true
+colored.workspace = true
+
+[[bin]]
+name = "gen_demo_params"
+test = false
+bench = false
+
+[[bin]]
+name = "demo"
+test = false
+bench = false
