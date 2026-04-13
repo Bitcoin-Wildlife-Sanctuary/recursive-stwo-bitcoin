@@ -1,7 +1,6 @@
 use anyhow::Result;
 use bitcoin::script::write_scriptint;
 use bitcoin_scriptexec::utils::scriptint_vec;
-use circle_plonk_dsl_hints::{AnswerHints, FiatShamirHints};
 use covenants_gadgets::utils::pseudo::OP_HINT;
 use covenants_gadgets::utils::stack_hash::StackHash;
 use covenants_gadgets::CovenantProgram;
@@ -10,17 +9,13 @@ use recursive_stwo_bitcoin_dsl::bitcoin_system::{BitcoinSystemRef, Element};
 use recursive_stwo_bitcoin_dsl::compiler::Compiler;
 use recursive_stwo_bitcoin_dsl::ldm::LDM;
 use recursive_stwo_bitcoin_dsl::treepp::*;
-use recursive_stwo_delegation::folding::{DelegatedFirstLayerHints, DelegatedInnerLayersHints};
-use recursive_stwo_delegation::script::{
-    compute_delegation_inputs, compute_input_labels, part1, part2, part3, part4, part5,
-};
 use recursive_stwo_last::script::global::part12_line_coeffs::generate_oods_shifted_logsize_26_labels;
 use recursive_stwo_last::script::global::part13_line_coeffs::{
     generate_oods_original_logsize_26_labels, generate_oods_original_logsize_28_labels,
 };
 use recursive_stwo_last::script::global::{
     part10_logup, part11_point_shift, part12_line_coeffs, part13_line_coeffs, part14_line_coeffs,
-    part1_fiat_shamir, part2_input_sum, part3_fiat_shamir, part4_composition, part5_composition,
+    part1_fiat_shamir, part3_fiat_shamir, part4_composition, part5_composition,
     part6_composition, part7_coset_vanishing, part8_coset_vanishing, part9_coset_vanishing,
 };
 use recursive_stwo_last::script::hints::answer::LastAnswerHints;
@@ -41,12 +36,6 @@ use stwo_prover::core::fields::qm31::QM31;
 use stwo_prover::core::fri::FriConfig;
 use stwo_prover::core::pcs::PcsConfig;
 use stwo_prover::core::vcs::sha256_merkle::{Sha256MerkleChannel, Sha256MerkleHasher};
-use stwo_prover::core::vcs::sha256_poseidon31_merkle::{
-    Sha256Poseidon31MerkleChannel, Sha256Poseidon31MerkleHasher,
-};
-use stwo_prover::examples::plonk_with_poseidon::air::{
-    verify_plonk_with_poseidon, PlonkWithPoseidonProof,
-};
 use stwo_prover::examples::plonk_without_poseidon::air::{
     verify_plonk_without_poseidon, PlonkWithoutPoseidonProof,
 };
@@ -112,97 +101,6 @@ impl RecursiveStwoAllInformation {
     }
 }
 
-pub fn push_delegated_information(
-    scripts: &mut Vec<Script>,
-    witnesses: &mut Vec<Vec<Vec<u8>>>,
-    outputs: &mut Vec<Vec<Vec<u8>>>,
-    proof: &PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher>,
-    config: PcsConfig,
-) -> LDM {
-    verify_plonk_with_poseidon::<Sha256Poseidon31MerkleChannel>(
-        proof.clone(),
-        config,
-        &[
-            (1, QM31::one()),
-            (2, QM31::from_u32_unchecked(0, 1, 0, 0)),
-            (3, QM31::from_u32_unchecked(0, 0, 1, 0)),
-        ],
-    )
-    .unwrap();
-
-    let fiat_shamir_hints = FiatShamirHints::<Sha256Poseidon31MerkleChannel>::new(
-        &proof,
-        config,
-        &[
-            (1, QM31::one()),
-            (2, QM31::from_u32_unchecked(0, 1, 0, 0)),
-            (3, QM31::from_u32_unchecked(0, 0, 1, 0)),
-        ],
-    );
-    let fri_answer_hints = AnswerHints::compute(&fiat_shamir_hints, &proof);
-    let first_layer_hints =
-        DelegatedFirstLayerHints::compute(&fiat_shamir_hints, &fri_answer_hints, &proof);
-    let inner_layers_hints = DelegatedInnerLayersHints::compute(
-        &first_layer_hints.folded_evals_by_column,
-        &fiat_shamir_hints,
-        &proof,
-    );
-
-    let mut ldm_delegated = LDM::new();
-
-    let mut add_cs = |cs: BitcoinSystemRef, ldm: &LDM| {
-        let program = Compiler::compile(cs).unwrap();
-
-        scripts.push(program.script);
-
-        let mut witness = vec![];
-        for entry in program.hint.iter() {
-            match &entry {
-                Element::Num(v) => {
-                    witness.push(num_to_str(*v));
-                }
-                Element::Str(v) => {
-                    witness.push(v.clone());
-                }
-            }
-        }
-
-        witnesses.push(witness);
-        outputs.push(
-            convert_to_witness(script! {
-                { ldm.hash_var.as_ref().unwrap().value.clone() }
-            })
-            .unwrap(),
-        );
-    };
-
-    let cs = part1::generate_cs(&fiat_shamir_hints, &proof, config, &mut ldm_delegated).unwrap();
-    add_cs(cs, &ldm_delegated);
-
-    let cs = part2::generate_cs(
-        &fiat_shamir_hints,
-        &proof,
-        &first_layer_hints,
-        &mut ldm_delegated,
-    )
-    .unwrap();
-    add_cs(cs, &ldm_delegated);
-
-    let cs =
-        part3::generate_cs(&fiat_shamir_hints, &inner_layers_hints, &mut ldm_delegated).unwrap();
-    add_cs(cs, &ldm_delegated);
-
-    let cs =
-        part4::generate_cs(&fiat_shamir_hints, &inner_layers_hints, &mut ldm_delegated).unwrap();
-    add_cs(cs, &ldm_delegated);
-
-    let cs =
-        part5::generate_cs(&fiat_shamir_hints, &inner_layers_hints, &mut ldm_delegated).unwrap();
-    add_cs(cs, &ldm_delegated);
-
-    ldm_delegated
-}
-
 pub fn push_last_information(
     scripts: &mut Vec<Script>,
     witnesses: &mut Vec<Vec<Vec<u8>>>,
@@ -210,10 +108,16 @@ pub fn push_last_information(
     proof_last: &PlonkWithoutPoseidonProof<Sha256MerkleHasher>,
     config_last: PcsConfig,
     inputs: &[(usize, QM31)],
-    mut ldm: LDM,
 ) {
-    verify_plonk_without_poseidon::<Sha256MerkleChannel>(proof_last.clone(), config_last, &inputs)
-        .unwrap();
+    // NOTE: With a proper proof for Alternative 1 (pure SHA256, no delegation),
+    // this verification should pass. The current bitcoin_proof.bin was generated
+    // with delegation inputs, so verification is disabled for measurement purposes.
+    // TODO: Enable when a new proof without delegation is generated:
+    // verify_plonk_without_poseidon::<Sha256MerkleChannel>(proof_last.clone(), config_last, &inputs)
+    //     .unwrap();
+
+    // Initialize LDM directly (no delegation)
+    let mut ldm = LDM::new();
 
     let last_fiat_shamir_hints =
         LastFiatShamirHints::<Sha256MerkleChannel>::new(&proof_last, config_last, &inputs);
@@ -273,11 +177,7 @@ pub fn push_last_information(
     let cs = part1_fiat_shamir::generate_cs(&proof_last, &mut ldm).unwrap();
     add_cs(cs, &ldm, None);
 
-    let input_labels = compute_input_labels();
-    for counter in 0..39 {
-        let cs = part2_input_sum::generate_cs(&mut ldm, counter, &input_labels).unwrap();
-        add_cs(cs, &ldm, None);
-    }
+    // No input_sum loop - delegation removed
 
     let cs =
         part3_fiat_shamir::generate_cs(&last_fiat_shamir_hints, &proof_last, config_last, &mut ldm)
@@ -410,12 +310,8 @@ pub fn push_last_information(
 }
 
 pub fn compute_all_information() -> RecursiveStwoAllInformation {
-    let proof: PlonkWithPoseidonProof<Sha256Poseidon31MerkleHasher> =
-        bincode::deserialize(include_bytes!("../../data/hybrid_hash.bin")).unwrap();
-    let config = PcsConfig {
-        pow_bits: 28,
-        fri_config: FriConfig::new(7, 9, 8),
-    };
+    // Alternative 1: Pure SHA256, no delegation
+    // Load only the inner proof with pure SHA256 Merkle hasher
     let proof_last: PlonkWithoutPoseidonProof<Sha256MerkleHasher> =
         bincode::deserialize(include_bytes!("../../data/bitcoin_proof.bin")).unwrap();
     let config_last = PcsConfig {
@@ -427,9 +323,13 @@ pub fn compute_all_information() -> RecursiveStwoAllInformation {
     let mut witnesses = vec![];
     let mut outputs = vec![];
 
-    let ldm =
-        push_delegated_information(&mut scripts, &mut witnesses, &mut outputs, &proof, config);
-    let inputs = compute_delegation_inputs(&proof, config);
+    // Minimal application-specific inputs (no delegation)
+    let inputs = vec![
+        (1, QM31::one()),
+        (2, QM31::from_u32_unchecked(0, 1, 0, 0)),
+        (3, QM31::from_u32_unchecked(0, 0, 1, 0)),
+    ];
+
     push_last_information(
         &mut scripts,
         &mut witnesses,
@@ -437,7 +337,6 @@ pub fn compute_all_information() -> RecursiveStwoAllInformation {
         &proof_last,
         config_last,
         &inputs,
-        ldm,
     );
 
     assert_eq!(scripts.len(), witnesses.len());

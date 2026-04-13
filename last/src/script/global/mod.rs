@@ -4,7 +4,6 @@ pub mod part12_line_coeffs;
 pub mod part13_line_coeffs;
 pub mod part14_line_coeffs;
 pub mod part1_fiat_shamir;
-pub mod part2_input_sum;
 pub mod part3_fiat_shamir;
 pub mod part4_composition;
 pub mod part5_composition;
