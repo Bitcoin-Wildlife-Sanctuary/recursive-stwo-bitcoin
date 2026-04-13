@@ -34,3 +34,8 @@ bench = false
 name = "demo"
 test = false
 bench = false
+
+[[bin]]
+name = "inspect_proof"
+test = false
+bench = false
