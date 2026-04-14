@@ -31,11 +31,8 @@ pub fn generate_cs(
     let plonk_total_sum = QM31Bar::new_hint(&cs, fiat_shamir_hints.plonk_total_sum)?;
     ldm.write("plonk_total_sum", &plonk_total_sum)?;
 
-    // NOTE: With a proper proof for Alternative 1 (pure SHA256, no delegation),
-    // plonk_total_sum should be zero. The current bitcoin_proof.bin was generated
-    // with delegation, so this check is disabled for measurement purposes.
-    // TODO: Enable when a new proof without delegation is generated:
-    // plonk_total_sum.is_zero();
+    // Alternative 1: Verify that plonk_total_sum is zero (no delegation, self-balanced circuit)
+    plonk_total_sum.is_zero();
 
     channel_var.mix_felts(&[plonk_total_sum]);
 

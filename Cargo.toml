@@ -1,5 +1,5 @@
 [workspace]
-members = ["bitcoin_dsl", "last", "primitives", "covenant"]
+members = ["bitcoin_dsl", "last", "primitives", "covenant", "proof_generator", "alt1_proof_generator"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -18,10 +18,20 @@ sha2 = "0.10.8"
 num-traits = "0.2.19"
 stwo-prover = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/stwo-circle-poseidon-plonk/", branch = "cp-poseidon-flattened", features = ["parallel"] }
 rust-bitcoin-m31 = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-m31" }
-circle-plonk-dsl-hints = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
-circle-plonk-dsl-last-folding = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
-circle-plonk-dsl-last-fiat-shamir = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
-circle-plonk-dsl-last-answer = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo" }
+circle-plonk-dsl-hints = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-last-folding = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-last-fiat-shamir = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-last-answer = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-constraint-system = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-data-structures = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-fiat-shamir = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-composition = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-answer = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-folding = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-fields = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-channel = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-circle = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
+circle-plonk-dsl-poseidon31 = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/recursive-stwo", rev = "caea77f" }
 itertools = "0.14.0"
 rayon = "1.10.0"
 covenants-gadgets = { git = "https://github.com/Bitcoin-Wildlife-Sanctuary/covenants-gadgets", tag = "1.1.1" }

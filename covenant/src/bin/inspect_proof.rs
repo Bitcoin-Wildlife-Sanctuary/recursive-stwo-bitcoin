@@ -30,14 +30,44 @@ fn main() {
     println!("  FRI last layer poly log_size: {}", proof_inner.stark_proof.fri_proof.last_layer_poly.log_size);
     println!();
 
-    println!("=== Analysis ===");
-    println!("The outer proof (hybrid_hash.bin) has log_size_plonk={} and log_size_poseidon={}",
-             proof_outer.stmt0.log_size_plonk, proof_outer.stmt0.log_size_poseidon);
-    println!("The inner proof (bitcoin_proof.bin) has log_size_plonk={}",
-             proof_inner.stmt0.log_size_plonk);
+    println!("=== Inspecting alternative1_proof.bin (PlonkWithoutPoseidon, self-balanced) ===");
+    let proof_alt1: PlonkWithoutPoseidonProof<Sha256MerkleHasher> =
+        bincode::deserialize(include_bytes!("../../../data/alternative1_proof.bin")).unwrap();
+
+    println!("  log_size_plonk: {}", proof_alt1.stmt0.log_size_plonk);
+    println!("  plonk_total_sum: {:?}", proof_alt1.stmt1.plonk_total_sum);
+    println!("  num commitments: {}", proof_alt1.stark_proof.commitments.len());
+    println!("  FRI first layer commitment: present");
+    println!("  FRI inner layers: {}", proof_alt1.stark_proof.fri_proof.inner_layers.len());
+    println!("  FRI last layer poly log_size: {}", proof_alt1.stark_proof.fri_proof.last_layer_poly.log_size);
     println!();
-    println!("For Alternative 1, a new proof would need to:");
-    println!("  1. Have plonk_total_sum = 0 (no delegation inputs)");
-    println!("  2. Potentially have different log_size_plonk if proving more computation");
-    println!("  3. Use pure SHA256 Merkle hasher");
+
+    println!("=== Comparison ===");
+    println!("bitcoin_proof.bin: plonk_total_sum = {:?}", proof_inner.stmt1.plonk_total_sum);
+    println!("alternative1_proof.bin: plonk_total_sum = {:?}", proof_alt1.stmt1.plonk_total_sum);
+    println!();
+
+    println!("=== Detailed sampled_values comparison ===");
+    println!("bitcoin_proof sampled_values structure:");
+    for (tree_idx, tree) in proof_inner.stark_proof.sampled_values.iter().enumerate() {
+        for (col_idx, col) in tree.iter().enumerate() {
+            println!("  tree[{}][{}]: {} samples", tree_idx, col_idx, col.len());
+            if col.len() > 0 {
+                println!("    first sample: {:?}", col[0]);
+            }
+        }
+    }
+
+    println!("\nalternative1_proof sampled_values structure:");
+    for (tree_idx, tree) in proof_alt1.stark_proof.sampled_values.iter().enumerate() {
+        for (col_idx, col) in tree.iter().enumerate() {
+            println!("  tree[{}][{}]: {} samples", tree_idx, col_idx, col.len());
+            if col.len() > 0 {
+                println!("    first sample: {:?}", col[0]);
+            }
+        }
+    }
+
+    println!();
+    println!("Alternative 1 has plonk_total_sum = 0, meaning no external inputs needed.");
 }

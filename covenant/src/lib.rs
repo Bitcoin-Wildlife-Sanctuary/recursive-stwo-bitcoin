@@ -4,7 +4,6 @@ use bitcoin_scriptexec::utils::scriptint_vec;
 use covenants_gadgets::utils::pseudo::OP_HINT;
 use covenants_gadgets::utils::stack_hash::StackHash;
 use covenants_gadgets::CovenantProgram;
-use num_traits::One;
 use recursive_stwo_bitcoin_dsl::bitcoin_system::{BitcoinSystemRef, Element};
 use recursive_stwo_bitcoin_dsl::compiler::Compiler;
 use recursive_stwo_bitcoin_dsl::ldm::LDM;
@@ -36,9 +35,7 @@ use stwo_prover::core::fields::qm31::QM31;
 use stwo_prover::core::fri::FriConfig;
 use stwo_prover::core::pcs::PcsConfig;
 use stwo_prover::core::vcs::sha256_merkle::{Sha256MerkleChannel, Sha256MerkleHasher};
-use stwo_prover::examples::plonk_without_poseidon::air::{
-    verify_plonk_without_poseidon, PlonkWithoutPoseidonProof,
-};
+use stwo_prover::examples::plonk_without_poseidon::air::PlonkWithoutPoseidonProof;
 
 pub static RECURSIVE_STWO_ALL_INFORMATION: OnceLock<RecursiveStwoAllInformation> = OnceLock::new();
 
@@ -109,12 +106,11 @@ pub fn push_last_information(
     config_last: PcsConfig,
     inputs: &[(usize, QM31)],
 ) {
-    // NOTE: With a proper proof for Alternative 1 (pure SHA256, no delegation),
-    // this verification should pass. The current bitcoin_proof.bin was generated
-    // with delegation inputs, so verification is disabled for measurement purposes.
-    // TODO: Enable when a new proof without delegation is generated:
-    // verify_plonk_without_poseidon::<Sha256MerkleChannel>(proof_last.clone(), config_last, &inputs)
-    //     .unwrap();
+    // Verify the proof using standard stwo verification before Bitcoin script verification
+    stwo_prover::examples::plonk_without_poseidon::air::verify_plonk_without_poseidon::<
+        Sha256MerkleChannel,
+    >(proof_last.clone(), config_last, inputs)
+    .expect("Proof verification failed");
 
     // Initialize LDM directly (no delegation)
     let mut ldm = LDM::new();
@@ -310,10 +306,13 @@ pub fn push_last_information(
 }
 
 pub fn compute_all_information() -> RecursiveStwoAllInformation {
-    // Alternative 1: Pure SHA256, no delegation
-    // Load only the inner proof with pure SHA256 Merkle hasher
+    // Alternative 1: Pure SHA256 verification (no Poseidon delegation layer)
+    //
+    // Using self-balanced proof (alternative1_proof.bin) with plonk_total_sum=0.
+    // Circuit uses 1 * 1 = 1 on a single wire, achieving perfect logup balance:
+    // +1/combine(1,0) + 1/combine(1,0) - 2/combine(1,0) = 0
     let proof_last: PlonkWithoutPoseidonProof<Sha256MerkleHasher> =
-        bincode::deserialize(include_bytes!("../../data/bitcoin_proof.bin")).unwrap();
+        bincode::deserialize(include_bytes!("../../data/alternative1_proof.bin")).unwrap();
     let config_last = PcsConfig {
         pow_bits: 28,
         fri_config: FriConfig::new(0, 9, 8),
@@ -323,12 +322,8 @@ pub fn compute_all_information() -> RecursiveStwoAllInformation {
     let mut witnesses = vec![];
     let mut outputs = vec![];
 
-    // Minimal application-specific inputs (no delegation)
-    let inputs = vec![
-        (1, QM31::one()),
-        (2, QM31::from_u32_unchecked(0, 1, 0, 0)),
-        (3, QM31::from_u32_unchecked(0, 0, 1, 0)),
-    ];
+    // Alternative 1: No external inputs needed (self-balanced circuit)
+    let inputs: Vec<(usize, QM31)> = vec![];
 
     push_last_information(
         &mut scripts,
