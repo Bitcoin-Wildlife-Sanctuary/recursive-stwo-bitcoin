@@ -65,7 +65,7 @@ fn small_proof_config() -> PcsConfig {
 fn alt1_output_config() -> PcsConfig {
     PcsConfig {
         pow_bits: 28,
-        fri_config: FriConfig::new(7, 7, 16), // blowup 7, 16 queries for security
+        fri_config: FriConfig::new(7, 7, 10), // blowup 7, 10 queries (sufficient with 128x blowup)
     }
 }
 
