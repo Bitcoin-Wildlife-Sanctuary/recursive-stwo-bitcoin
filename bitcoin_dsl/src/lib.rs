@@ -170,7 +170,7 @@ fn test_program_generic(
 }
 
 pub fn rand_m31<R: RngCore>(prng: &mut R) -> M31 {
-    M31::from_u32_unchecked(prng.gen_range(0..((1i64 << 31) - 1)) as u32)
+    M31::from_u32_unchecked(prng.random_range(0..((1i64 << 31) - 1)) as u32)
 }
 
 pub fn rand_cm31<R: RngCore>(prng: &mut R) -> CM31 {
