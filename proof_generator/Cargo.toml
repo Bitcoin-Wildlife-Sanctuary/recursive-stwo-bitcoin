@@ -1,0 +1,9 @@
+[package]
+name = "proof-generator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+stwo-prover.workspace = true
+bincode.workspace = true
+num-traits.workspace = true

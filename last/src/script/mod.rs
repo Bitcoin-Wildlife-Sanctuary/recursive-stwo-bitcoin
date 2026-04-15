@@ -5,6 +5,8 @@ pub mod per_query;
 
 pub mod part_last;
 
+pub mod plonk_with_poseidon;
+
 #[cfg(test)]
 mod test {
     use crate::script::global::part12_line_coeffs::generate_oods_shifted_logsize_26_labels;
@@ -35,9 +37,7 @@ mod test {
     use stwo_prover::core::fri::FriConfig;
     use stwo_prover::core::pcs::PcsConfig;
     use stwo_prover::core::vcs::sha256_merkle::{Sha256MerkleChannel, Sha256MerkleHasher};
-    use stwo_prover::examples::plonk_without_poseidon::air::{
-        verify_plonk_without_poseidon, PlonkWithoutPoseidonProof,
-    };
+    use stwo_prover::examples::plonk_without_poseidon::air::PlonkWithoutPoseidonProof;
 
     #[test]
     fn test_last_verifier() {

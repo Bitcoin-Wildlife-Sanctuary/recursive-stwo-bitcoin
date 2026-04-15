@@ -1,5 +1,5 @@
 [workspace]
-members = ["bitcoin_dsl", "last", "primitives", "covenant", "proof_generator", "alt1_proof_generator"]
+members = ["bitcoin_dsl", "last", "primitives", "covenant", "proof_generator", "alt1_proof_generator", "poseidon_proof_generator"]
 resolver = "2"
 
 [workspace.dependencies]

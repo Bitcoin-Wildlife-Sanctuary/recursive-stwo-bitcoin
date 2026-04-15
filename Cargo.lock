@@ -1125,6 +1125,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19f132c84eca552bf34cab8ec81f1c1dcc229b811638f9d283dceabe58c5569e"
 
 [[package]]
+name = "poseidon-proof-generator"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "circle-plonk-dsl-answer",
+ "circle-plonk-dsl-channel",
+ "circle-plonk-dsl-circle",
+ "circle-plonk-dsl-composition",
+ "circle-plonk-dsl-constraint-system",
+ "circle-plonk-dsl-data-structures",
+ "circle-plonk-dsl-fiat-shamir",
+ "circle-plonk-dsl-fields",
+ "circle-plonk-dsl-folding",
+ "circle-plonk-dsl-hints",
+ "circle-plonk-dsl-poseidon31",
+ "num-traits",
+ "stwo-prover",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1286,7 +1307,9 @@ dependencies = [
  "anyhow",
  "bincode",
  "bitcoin",
+ "bitcoin-scriptexec 0.0.0 (git+https://github.com/Bitcoin-Wildlife-Sanctuary/rust-bitcoin-scriptexec/)",
  "circle-plonk-dsl-hints",
+ "covenants-gadgets",
  "itertools 0.14.0",
  "num-traits",
  "recursive-stwo-bitcoin-dsl",
